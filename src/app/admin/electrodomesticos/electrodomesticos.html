@@ -1,1 +1,108 @@
-<p>electrodomesticos works!</p>
+<div class="space-y-6">
+    <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div>
+            <p class="text-[11px] font-medium text-slate-400 font-mono uppercase tracking-wider">Módulo de
+                Administración</p>
+            <h2 class="text-xl font-bold text-slate-700 mt-0.5">Gestión de Electrodomésticos</h2>
+        </div>
+        <button (click)="abrirModalCrear()"
+            class="px-4 py-2 bg-[#1a365d] hover:bg-[#122542] text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Nuevo Equipo</span>
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <table class="w-full text-left text-xs">
+            <thead>
+                <tr class="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/50">
+                    <th class="p-3">ID</th>
+                    <th class="p-3">Dueño</th>
+                    <th class="p-3">Equipo</th>
+                    <th class="p-3">Marca / Modelo</th>
+                    <th class="p-3">Nro. Serie</th>
+                    <th class="p-3 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-600">
+                @for (e of listaEquipos(); track e.id) {
+                <tr class="hover:bg-slate-50/50">
+                    <td class="p-3 font-medium text-slate-400">#{{e.id}}</td>
+                    <td class="p-3 font-semibold">
+                        {{ e.client?.nombre }} {{ e.client?.apellido }}
+                    </td>
+                    <td class="p-3">{{e.tipo}}</td>
+                    <td class="p-3">{{e.marca}} / {{e.modelo}}</td>
+                    <td class="p-3 font-mono text-slate-500">{{e.numeroSerie}}</td>
+                    <td class="p-3">
+                        <div class="flex items-center justify-center space-x-3">
+                            <button (click)="seleccionarParaEditar(e)" class="text-slate-400 hover:text-blue-600"><svg
+                                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg></button>
+                            <button (click)="eliminar(e.id)" class="text-slate-400 hover:text-red-500">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (mostrarConfirmarEliminar()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40">
+    <div class="bg-white p-6 rounded-xl shadow-xl w-80 text-center">
+      <h3 class="font-bold text-lg mb-4">¿Confirmar eliminación?</h3>
+      <div class="flex justify-center space-x-3">
+        <button (click)="mostrarConfirmarEliminar.set(false)" class="px-4 py-2 border rounded-lg">Cancelar</button>
+        <button (click)="confirmarEliminarReal()" class="px-4 py-2 bg-red-600 text-white rounded-lg">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mostrarModal()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-md rounded-xl border p-6">
+        <h2 class="font-bold text-slate-800 mb-4">{{modoEdicion() ? 'Editar Equipo' : 'Nuevo Equipo'}}</h2>
+        <form (ngSubmit)="guardar()" class="space-y-3">
+            <select [(ngModel)]="formulario.clientId" name="clientId" required
+                class="w-full border border-slate-200 rounded-lg px-3 py-2">
+                <option [ngValue]="null" disabled>Seleccione un Cliente</option>
+                @for (c of listaClientes(); track c.id) {
+                <option [ngValue]="c.id">{{c.nombre}} {{c.apellido}}</option>
+                }
+            </select>
+            <input [(ngModel)]="formulario.tipo" name="tipo" placeholder="Tipo (ej. Televisor)" required
+                class="w-full border rounded-lg p-2">
+            <input [(ngModel)]="formulario.marca" name="marca" placeholder="Marca" required
+                class="w-full border rounded-lg p-2">
+            <input [(ngModel)]="formulario.modelo" name="modelo" placeholder="Modelo" required
+                class="w-full border rounded-lg p-2">
+            <input [(ngModel)]="formulario.numeroSerie" name="numeroSerie" placeholder="Número de Serie" required
+                class="w-full border rounded-lg p-2">
+            <textarea [(ngModel)]="formulario.observaciones" name="observaciones" placeholder="Observaciones"
+                class="w-full border rounded-lg p-2"></textarea>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button type="button" (click)="cerrarModal()"
+                    class="py-2 px-4 border rounded-lg font-bold">Cancelar</button>
+                <button type="submit" class="py-2 px-4 bg-[#1a365d] text-white rounded-lg font-bold">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+}

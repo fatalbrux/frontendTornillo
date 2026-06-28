@@ -5,6 +5,7 @@ import { Clientes } from './admin/clientes/clientes';
 import { Electrodomesticos } from './admin/electrodomesticos/electrodomesticos';
 import { Diagnosticos } from './admin/diagnosticos/diagnosticos';
 import { Login } from './auth/login/login';
+import { Personal } from './modules/admin/personal/personal';
 
 export const routes: Routes = [
   // Si no está logueado, lo mandamos al login por defecto
@@ -19,7 +20,8 @@ export const routes: Routes = [
       { path: 'servicios', component: Servicios },
       { path: 'clientes', component: Clientes },
       { path: 'electrodomesticos', component: Electrodomesticos },
-      { path: 'diagnosticos', component: Diagnosticos }
+      { path: 'diagnosticos', component: Diagnosticos },
+      { path: 'personal', component: Personal }
     ]
   },
   { path: '**', redirectTo: 'login' }

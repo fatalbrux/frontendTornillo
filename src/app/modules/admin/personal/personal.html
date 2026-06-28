@@ -1,1 +1,84 @@
-<p>personal works!</p>
+<div class="space-y-6">
+    <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div>
+            <p class="text-[11px] font-medium text-slate-400 font-mono">Gestión Interna</p>
+            <h2 class="text-xl font-bold text-slate-700 mt-0.5">Personal del Taller</h2>
+        </div>
+        <button (click)="abrirModalCrear()"
+            class="px-4 py-2 bg-[#1a365d] hover:bg-[#122542] text-white text-xs font-bold rounded-lg shadow-sm flex items-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Nuevo Usuario</span>
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr class="text-slate-400 font-semibold">
+                        <th class="p-4">Nombre Completo</th>
+                        <th class="p-4">C.I.</th>
+                        <th class="p-4">Rol</th>
+                        <th class="p-4 text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @for (u of listaPersonal(); track u.id) {
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="p-4 font-semibold text-slate-700">{{u.nombre}} {{u.apellido}}</td>
+                        <td class="p-4 font-mono text-slate-500">{{u.ci}}</td>
+                        <td class="p-4">
+                            <span [class]="u.roleId === 1 ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'"
+                                class="px-2 py-1 rounded-md font-bold text-[10px]">
+                                {{ u.roleId === 1 ? 'ADMIN' : 'TÉCNICO' }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button (click)="seleccionarParaEditar(u)"
+                                class="text-slate-400 hover:text-blue-600 font-bold">Editar</button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (mostrarModal()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-sm rounded-xl shadow-xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 font-bold text-slate-800">
+            {{modoEdicion() ? 'Editar Usuario' : 'Registro de Personal'}}
+        </div>
+        <form (ngSubmit)="guardar()" class="p-6 space-y-4">
+            @if (mensajeError()) { <div class="bg-red-50 text-red-600 p-2 text-[11px] rounded font-bold text-center">
+                {{mensajeError()}}</div> }
+
+            <input type="text" [(ngModel)]="formulario.nombre" name="nombre" placeholder="Nombre" required
+                class="w-full border border-slate-200 rounded-lg p-2 focus:border-slate-400 outline-none">
+            <input type="text" [(ngModel)]="formulario.apellido" name="apellido" placeholder="Apellido" required
+                class="w-full border border-slate-200 rounded-lg p-2 focus:border-slate-400 outline-none">
+            <input type="text" [(ngModel)]="formulario.ci" name="ci" placeholder="C.I." required
+                class="w-full border border-slate-200 rounded-lg p-2 focus:border-slate-400 outline-none font-mono">
+
+            <select [(ngModel)]="formulario.roleId" name="roleId"
+                class="w-full border border-slate-200 rounded-lg p-2 bg-white focus:border-slate-400 outline-none">
+                @for (rol of listaRoles(); track rol.id) {
+                <option [value]="rol.id">{{ rol.nombre }}</option>
+                }
+            </select>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" (click)="mostrarModal.set(false)"
+                    class="flex-1 py-2 border rounded-lg font-bold text-slate-600">Cancelar</button>
+                <button type="submit" class="flex-1 py-2 bg-[#1a365d] text-white rounded-lg font-bold">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
