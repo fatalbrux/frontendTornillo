@@ -68,6 +68,13 @@
       </div>
 
       <form (ngSubmit)="guardar()" class="p-6 space-y-4">
+        
+        @if (mensajeError()) {
+          <div class="bg-red-50 border border-red-200 text-red-700 p-2.5 rounded-lg font-medium text-center text-[11px] leading-normal animate-pulse">
+            {{ mensajeError() }}
+          </div>
+        }
+
         <div class="space-y-1">
           <label class="font-bold text-slate-600 block">Nombre(s)</label>
           <input type="text" [(ngModel)]="formulario.nombre" name="nombre" placeholder="Ej. Juan" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
@@ -80,12 +87,12 @@
 
         <div class="space-y-1">
           <label class="font-bold text-slate-600 block">Cédula de Identidad (C.I.)</label>
-          <input type="text" [(ngModel)]="formulario.ci" name="ci" placeholder="Ej. 7654321" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400 font-mono">
+          <input type="text" [(ngModel)]="formulario.ci" name="ci" placeholder="Ej. 7654321" minlength="5" maxlength="15" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400 font-mono">
         </div>
 
         <div class="space-y-1">
           <label class="font-bold text-slate-600 block">Número de Teléfono</label>
-          <input type="text" [(ngModel)]="formulario.telefono" name="telefono" placeholder="Ej. 71234567" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+          <input type="text" [(ngModel)]="formulario.telefono" name="telefono" placeholder="Ej. 71234567" pattern="^[0-9]*$" minlength="7" maxlength="10" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
         </div>
 
         <div class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100">

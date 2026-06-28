@@ -13,20 +13,41 @@ export class Clientes implements OnInit {
   private readonly usuariosService = inject(UsuariosService);
 
   protected readonly listaClientes = signal<Usuario[]>([]);
-  protected readonly errorConexion = signal<string|null>(null);
+  protected readonly errorConexion = signal<string | null>(null);
+  protected readonly mensajeError = signal<string | null>(null); // Alerta dinámica para el formulario
   protected readonly modoEdicion = signal<boolean>(false);
-  protected readonly idSeleccionado = signal<number|null>(null);
+  protected readonly idSeleccionado = signal<number | null>(null);
   protected readonly mostrarModal = signal<boolean>(false);
   protected readonly mostrarConfirmarEliminar = signal<boolean>(false);
-  protected idClienteAEliminar: number|null = null;
+  protected idClienteAEliminar: number | null = null;
 
   protected formulario = {
     nombre: '',
     apellido: '',
     ci: '',
     telefono: '',
-    roleId: 3 // Rol fijo de Cliente para tu backend
+    username: '',
+    email: '',
+    password: '',
+    roleId: 3
   };
+
+  abrirModalCrear(): void {
+    this.modoEdicion.set(false);
+    this.idSeleccionado.set(null);
+    this.mensajeError.set(null); // Limpiamos errores anteriores
+    this.formulario = {
+      nombre: '',
+      apellido: '',
+      ci: '',
+      telefono: '',
+      username: '',
+      email: '',
+      password: '',
+      roleId: 3
+    };
+    this.mostrarModal.set(true);
+  }
 
   ngOnInit(): void {
     this.listar();
@@ -35,33 +56,21 @@ export class Clientes implements OnInit {
   listar(): void {
     this.usuariosService.funListar().subscribe({
       next: (res) => {
-        // Filtramos de forma inteligente para listar solo los usuarios que son clientes
         const clientes = res.filter(u => u.roleId === 3);
         this.listaClientes.set(clientes);
       },
       error: (err) => {
         console.error(err);
         this.errorConexion.set('Error al cargar la lista de clientes');
+        this.listaClientes.set([]);
       }
     });
-  }
-
-  abrirModalCrear(): void {
-    this.modoEdicion.set(false);
-    this.idSeleccionado.set(null);
-    this.formulario = {
-      nombre: '',
-      apellido: '',
-      ci: '',
-      telefono: '',
-      roleId: 3
-    };
-    this.mostrarModal.set(true);
   }
 
   seleccionarParaEditar(cliente: Usuario): void {
     this.modoEdicion.set(true);
     this.idSeleccionado.set(cliente.id || null);
+    this.mensajeError.set(null); // Limpiamos errores anteriores
     this.formulario.nombre = cliente.nombre;
     this.formulario.apellido = cliente.apellido;
     this.formulario.ci = cliente.ci;
@@ -75,17 +84,72 @@ export class Clientes implements OnInit {
   }
 
   guardar(): void {
+    this.mensajeError.set(null);
+    const ciDuplicado = this.listaClientes().some(
+      (cli) => cli.ci === this.formulario.ci && cli.id !== this.idSeleccionado()
+    );
+
+    if (ciDuplicado) {
+      this.mensajeError.set(`El usuario con C.I. ${this.formulario.ci} ya existe.`);
+      return; 
+    }
+    if (this.formulario.ci.length < 5) {
+      this.mensajeError.set('La Cédula de Identidad debe tener al menos 5 caracteres.');
+      return;
+    }
+    if (this.formulario.telefono.length < 7) {
+      this.mensajeError.set('El número de teléfono debe tener al menos 7 dígitos.');
+      return;
+    }
+    if (!this.modoEdicion()) {
+      this.formulario.username = this.formulario.ci;
+      this.formulario.email = `${this.formulario.ci}@tornilloloko.com`;
+      this.formulario.password = `Cli_${this.formulario.ci}`;
+    }
     if (this.modoEdicion() && this.idSeleccionado() !== null) {
       this.usuariosService.funEditar(this.formulario, this.idSeleccionado()!).subscribe({
         next: () => this.reiniciarYRefrescar(),
-        error: (err) => console.error(err)
+        error: (err) => this.manejarErrorBackend(err, 'editar')
       });
     } else {
       this.usuariosService.funGuardar(this.formulario).subscribe({
         next: () => this.reiniciarYRefrescar(),
-        error: (err) => console.error(err)
+        error: (err) => this.manejarErrorBackend(err, 'guardar')
       });
     }
+  }
+
+  private manejarErrorBackend(err: any, accion: string): void {
+    console.error(`Error al ${accion}:`, err);
+    
+    const mensajeServidor = err.error?.message;
+    const statusCode = err.status;
+
+    // 1. Si el backend responde con 500 o texto de duplicidad, es por el choque de C.I./Usuario duplicado
+    const errorString = JSON.stringify(err).toLowerCase();
+    if (
+      statusCode === 500 || 
+      statusCode === 409 || 
+      errorString.includes('duplicate') || 
+      errorString.includes('already exists') || 
+      errorString.includes('ya existe')
+    ) {
+      this.mensajeError.set(`El usuario con C.I. o datos ${this.formulario.ci} ya existe en el sistema.`);
+      return;
+    }
+
+    // 2. Si el backend nos da un mensaje de error por formato de datos (class-validator 400)
+    if (mensajeServidor) {
+      if (Array.isArray(mensajeServidor)) {
+        this.mensajeError.set(mensajeServidor[0]);
+      } else {
+        this.mensajeError.set(mensajeServidor);
+      }
+      return;
+    }
+
+    // 3. Fallback definitivo por si es otro problema
+    this.mensajeError.set('No se pudo procesar la solicitud. Verifica los datos o el estado del servidor.');
   }
 
   eliminar(id: number): void {
@@ -110,6 +174,7 @@ export class Clientes implements OnInit {
     this.mostrarModal.set(false);
     this.modoEdicion.set(false);
     this.idSeleccionado.set(null);
+    this.mensajeError.set(null);
     this.listar();
   }
 }
