@@ -7,6 +7,9 @@ import { Diagnosticos } from './admin/diagnosticos/diagnosticos';
 import { Login } from './auth/login/login';
 import { Personal } from './modules/admin/personal/personal';
 
+import { Presupuestos } from './tecnico/presupuestos/presupuestos'; // Cambiado al componente real, no la interfaz
+import { ServiciosAsignados } from './tecnico/servicios-asignados/servicios-asignados';
+import { TecnicoLayoutComponent } from './tecnico/tecnico-layout/tecnico-layout';
 export const routes: Routes = [
   // Si no está logueado, lo mandamos al login por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -24,5 +27,15 @@ export const routes: Routes = [
       { path: 'personal', component: Personal }
     ]
   },
+
+  {
+    path: 'tecnico',
+    component: TecnicoLayoutComponent,
+    children: [
+      { path: 'servicios-asignados', component: ServiciosAsignados },
+      { path: 'presupuesto/:id', component: Presupuestos } // Ahora sí cargará el componente formulario
+    ]
+  },
+
   { path: '**', redirectTo: 'login' }
 ];
