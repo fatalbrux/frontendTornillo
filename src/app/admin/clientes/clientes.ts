@@ -124,8 +124,6 @@ export class Clientes implements OnInit {
     
     const mensajeServidor = err.error?.message;
     const statusCode = err.status;
-
-    // 1. Si el backend responde con 500 o texto de duplicidad, es por el choque de C.I./Usuario duplicado
     const errorString = JSON.stringify(err).toLowerCase();
     if (
       statusCode === 500 || 
@@ -137,8 +135,6 @@ export class Clientes implements OnInit {
       this.mensajeError.set(`El usuario con C.I. o datos ${this.formulario.ci} ya existe en el sistema.`);
       return;
     }
-
-    // 2. Si el backend nos da un mensaje de error por formato de datos (class-validator 400)
     if (mensajeServidor) {
       if (Array.isArray(mensajeServidor)) {
         this.mensajeError.set(mensajeServidor[0]);
@@ -147,8 +143,6 @@ export class Clientes implements OnInit {
       }
       return;
     }
-
-    // 3. Fallback definitivo por si es otro problema
     this.mensajeError.set('No se pudo procesar la solicitud. Verifica los datos o el estado del servidor.');
   }
 

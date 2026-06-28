@@ -5,6 +5,8 @@ import { Clientes } from './admin/clientes/clientes';
 import { Electrodomesticos } from './admin/electrodomesticos/electrodomesticos';
 import { Diagnosticos } from './admin/diagnosticos/diagnosticos';
 import { Login } from './auth/login/login';
+import { Personal } from './modules/admin/personal/personal';
+
 import { Presupuestos } from './tecnico/presupuestos/presupuestos'; // Cambiado al componente real, no la interfaz
 import { ServiciosAsignados } from './tecnico/servicios-asignados/servicios-asignados';
 import { TecnicoLayoutComponent } from './tecnico/tecnico-layout/tecnico-layout';
@@ -21,7 +23,8 @@ export const routes: Routes = [
       { path: 'servicios', component: Servicios },
       { path: 'clientes', component: Clientes },
       { path: 'electrodomesticos', component: Electrodomesticos },
-      { path: 'diagnosticos', component: Diagnosticos }
+      { path: 'diagnosticos', component: Diagnosticos },
+      { path: 'personal', component: Personal }
     ]
   },
 
