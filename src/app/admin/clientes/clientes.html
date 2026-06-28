@@ -1,1 +1,116 @@
-<p>clientes works!</p>
+<div class="space-y-6">
+
+  <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+    <div>
+      <p class="text-[11px] font-medium text-slate-400 font-mono">Módulo de Administración</p>
+      <h2 class="text-xl font-bold text-slate-700 mt-0.5">Gestión de Clientes</h2>
+    </div>
+    <button (click)="abrirModalCrear()" class="px-4 py-2 bg-[#1a365d] hover:bg-[#122542] text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center space-x-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Nuevo Cliente</span>
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center space-x-2 mb-4 text-slate-700 font-bold text-xs">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span>Clientes Activos en el Sistema</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/50">
+            <th class="p-3">ID</th>
+            <th class="p-3">Nombre Completo</th>
+            <th class="p-3">C.I. / Documento</th>
+            <th class="p-3">Teléfono</th>
+            <th class="p-3 text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-600">
+          @for (cli of listaClientes(); track cli.id) {
+            <tr class="hover:bg-slate-50/50 transition-colors">
+              <td class="p-3 font-medium text-slate-400">#{{cli.id}}</td>
+              <td class="p-3 font-semibold text-slate-700">{{cli.nombre}} {{cli.apellido}}</td>
+              <td class="p-3 text-slate-500 font-mono">{{cli.ci}}</td>
+              <td class="p-3 text-slate-500">{{cli.telefono}}</td>
+              <td class="p-3">
+                <div class="flex items-center justify-center space-x-3">
+                  <button (click)="seleccionarParaEditar(cli)" class="text-slate-400 hover:text-blue-600 transition-colors" title="Editar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  </button>
+                  <button (click)="eliminar(cli.id!)" class="text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="p-6 text-center text-slate-400 italic">No se encontraron clientes registrados en la base de datos.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+@if (mostrarModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-md rounded-xl border border-slate-200 shadow-xl overflow-hidden text-xs text-slate-700">
+      
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <h2 class="font-bold text-slate-800">{{modoEdicion() ? 'Modificar Datos de Cliente':'Registro de Nuevo Cliente'}}</h2>
+        <button type="button" (click)="cerrarModal()" class="text-slate-400 text-xl leading-none">&times;</button>
+      </div>
+
+      <form (ngSubmit)="guardar()" class="p-6 space-y-4">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-600 block">Nombre(s)</label>
+          <input type="text" [(ngModel)]="formulario.nombre" name="nombre" placeholder="Ej. Juan" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-600 block">Apellido(s)</label>
+          <input type="text" [(ngModel)]="formulario.apellido" name="apellido" placeholder="Ej. Pérez" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-600 block">Cédula de Identidad (C.I.)</label>
+          <input type="text" [(ngModel)]="formulario.ci" name="ci" placeholder="Ej. 7654321" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400 font-mono">
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-600 block">Número de Teléfono</label>
+          <input type="text" [(ngModel)]="formulario.telefono" name="telefono" placeholder="Ej. 71234567" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100">
+          <button type="button" (click)="cerrarModal()" class="py-2 px-4 border border-slate-200 rounded-lg text-slate-700 font-bold hover:bg-slate-50 transition-colors">Cancelar</button>
+          <button type="submit" class="py-2 px-4 bg-[#1a365d] text-white rounded-lg font-bold hover:bg-[#122542] transition-colors">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (mostrarConfirmarEliminar()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-sm rounded-xl border border-slate-200 shadow-xl p-6 text-center text-xs text-slate-700 space-y-4">
+      <div class="mx-auto w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="space-y-1">
+        <h3 class="text-sm font-bold text-slate-800">¿Eliminar cliente del sistema?</h3>
+        <p class="text-slate-400 font-medium px-2">Esta acción borrará el registro de forma permanente de tu base de datos.</p>
+      </div>
+      <div class="flex items-center justify-center space-x-3 pt-2">
+        <button type="button" (click)="mostrarConfirmarEliminar.set(false)" class="py-2 w-28 border border-slate-200 rounded-lg text-slate-600 font-bold hover:bg-slate-50 transition-colors">Cancelar</button>
+        <button type="button" (click)="confirmarEliminarReal()" class="py-2 w-28 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold transition-colors">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
