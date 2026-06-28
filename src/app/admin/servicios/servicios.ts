@@ -17,12 +17,14 @@ export class Servicios implements OnInit {
   protected readonly errorConexion=signal<string|null>(null);
   protected readonly modoEdicion=signal<boolean>(false);
   protected readonly idSeleccionado=signal<number|null>(null);
-
+  protected readonly mostrarModal=signal<boolean>(false);
+  protected readonly mostrarConfirmarEliminar=signal<boolean>(false);
+  protected idServicioAEliminar:number|null=null;
   protected formulario={
     estado:'Programado',
     direccionServicio:'',
     recargoDomicilio:0,
-    estDomicilio:true,
+    estDomicilio:false, // Inicializa en taller por defecto según mockup
     duracionEstimada:'02:00:00',
     duracionReal:'00:00:00'
   };
@@ -36,9 +38,39 @@ export class Servicios implements OnInit {
       next:(res)=>this.datosBack.set(res),
       error:(err)=>{
         console.error(err);
-        this.errorConexion.set('No se pudieron cargar los servicios');
+        this.errorConexion.set('Error al cargar datos');
       }
     });
+  }
+
+  abrirModalCrear():void{
+    this.modoEdicion.set(false);
+    this.idSeleccionado.set(null);
+    this.formulario={
+      estado:'Programado',
+      direccionServicio:'',
+      recargoDomicilio:0,
+      estDomicilio:false,
+      duracionEstimada:'02:00:00',
+      duracionReal:'00:00:00'
+    };
+    this.mostrarModal.set(true);
+  }
+
+  seleccionarParaEditar(serv:Servicio):void{
+    this.modoEdicion.set(true);
+    this.idSeleccionado.set(serv.id);
+    this.formulario.estado=serv.estado;
+    this.formulario.direccionServicio=serv.direccionServicio;
+    this.formulario.recargoDomicilio=serv.recargoDomicilio;
+    this.formulario.estDomicilio=serv.estDomicilio;
+    this.formulario.duracionEstimada=serv.duracionEstimada;
+    this.formulario.duracionReal=serv.duracionReal; // Corregido el corte de la línea 68
+    this.mostrarModal.set(true);
+  }
+
+  cerrarModal():void{
+    this.mostrarModal.set(false);
   }
 
   guardar():void{
@@ -56,37 +88,28 @@ export class Servicios implements OnInit {
     }
   }
 
-  seleccionarParaEditar(serv:Servicio):void{
-    this.modoEdicion.set(true);
-    this.idSeleccionado.set(serv.id);
-    this.formulario.estado=serv.estado;
-    this.formulario.direccionServicio=serv.direccionServicio;
-    this.formulario.recargoDomicilio=serv.recargoDomicilio;
-    this.formulario.estDomicilio=serv.estDomicilio;
-    this.formulario.duracionEstimada=serv.duracionEstimada;
-    this.formulario.duracionReal=serv.duracionReal;
-  }
-
   eliminar(id:number):void{
-    if(confirm('¿Seguro que deseas eliminar este registro?')){
-      this.serviciosService.funEliminar(id).subscribe({
-        next:()=>this.listar(),
-        error:(err)=>console.error(err)
-      });
-    }
+    this.idServicioAEliminar=id;
+    this.mostrarConfirmarEliminar.set(true);
   }
 
   reiniciarYRefrescar():void{
+    this.mostrarModal.set(false);
     this.modoEdicion.set(false);
     this.idSeleccionado.set(null);
-    this.formulario={
-      estado:'Programado',
-      direccionServicio:'',
-      recargoDomicilio:0,
-      estDomicilio:true,
-      duracionEstimada:'02:00:00',
-      duracionReal:'00:00:00'
-    };
     this.listar();
+  }
+
+  confirmarEliminarReal():void{
+    if(this.idServicioAEliminar!==null){
+      this.serviciosService.funEliminar(this.idServicioAEliminar).subscribe({
+        next:()=>{
+          this.mostrarConfirmarEliminar.set(false);
+          this.idServicioAEliminar=null;
+          this.listar();
+        },
+        error:(err)=>console.error(err)
+      });
+    }
   }
 }
