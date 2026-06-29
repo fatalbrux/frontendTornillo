@@ -1,5 +1,5 @@
 <div class="space-y-6 text-xs text-slate-700">
-  
+
   <!-- CABECERA -->
   <div class="bg-[#12335c] text-white px-4 py-3 rounded-xl shadow-xs flex items-center space-x-3">
     <button routerLink="/tecnico/servicios-asignados" type="button" class="p-1 hover:bg-white/10 rounded-lg transition-colors">
@@ -8,53 +8,67 @@
     <h2 class="font-bold text-sm">Registrar Presupuesto Oficial</h2>
   </div>
 
-  <!-- DETALLES DE REFERENCIA DEL SERVICIO -->
+  <!-- INFORMACIÓN DEL SERVICIO -->
+  @if (servicio()) {
   <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
     <div class="flex items-center space-x-2 text-slate-800 font-bold border-b border-slate-100 pb-2">
-      <span class="w-1 h-3.5 bg-[#12335c] rounded-full"></span>
-      <span>Referencia de Servicio</span>
+      <span class="w-1 h-4 bg-[#12335c] rounded-full"></span>
+      <span>Información del Servicio</span>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-slate-500 font-medium">
-      <p><span class="text-slate-400">ID Orden:</span> #{{idServicio}}</p>
-      <p><span class="text-slate-400">Fecha Límite:</span> 2026-06-28</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 text-slate-500 font-medium">
+      <p><span class="text-slate-400">ID Orden:</span> <span class="font-bold text-slate-700">#{{idServicio}}</span></p>
+      <p><span class="text-slate-400">Fecha:</span> <span class="font-bold text-slate-700">{{hoy | date:'dd/MM/yyyy'}}</span></p>
+      <p><span class="text-slate-400">Cliente:</span> <span class="font-bold text-slate-700">{{servicio().cliente?.nombre}} {{servicio().cliente?.apellido}}</span></p>
+      <p><span class="text-slate-400">Teléfono:</span> <span class="font-bold text-slate-700">{{servicio().cliente?.telefono}}</span></p>
+      <p class="col-span-2"><span class="text-slate-400">Electrodoméstico:</span> <span class="font-bold text-slate-700">{{servicio().electrodomestico?.tipo}} {{servicio().electrodomestico?.marca}}</span></p>
+      <p class="col-span-2"><span class="text-slate-400">Problema Reportado:</span> <span class="font-bold text-orange-600">{{servicio().electrodomestico?.observaciones || '—'}}</span></p>
+      @if (servicio().estDomicilio) {
+        <p class="col-span-2"><span class="text-slate-400">Dirección:</span> <span class="font-bold text-slate-700">{{servicio().direccionServicio}}</span></p>
+      }
     </div>
   </div>
+}
 
-  <!-- FORMULARIO DIRECTO CON TU TABLA -->
-  <form [formGroup]="formPresupuesto" (ngSubmit)="funEnviar()" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-5">
-    <p class="text-slate-800 font-bold border-b border-slate-100 pb-2">Montos del Presupuesto</p>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Campo: costoManoObra -->
-      <div class="space-y-1.5">
-        <label class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Costo Mano de Obra (Bs.)</label>
-        <input type="number" formControlName="costoManoObra" placeholder="0.00" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-bold focus:outline-none focus:border-slate-400">
+  <!-- FORMULARIO -->
+  <form [formGroup]="formPresupuesto" (ngSubmit)="funEnviar()" class="space-y-4">
+
+    <!-- MONTOS -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+      <p class="text-slate-800 font-bold border-b border-slate-100 pb-2">Resumen de Costos</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Costo Mano de Obra (Bs.)</label>
+          <input type="number" formControlName="costoManoObra" placeholder="0.00"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-slate-800 font-bold focus:outline-none focus:border-slate-400">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Costo Repuestos / Insumos (Bs.)</label>
+          <input type="number" formControlName="costoRepuestos" placeholder="0.00"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-slate-800 font-bold focus:outline-none focus:border-slate-400">
+        </div>
       </div>
 
-      <!-- Campo: costoRepuestos -->
-      <div class="space-y-1.5">
-        <label class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Costo Repuestos/Insumos (Bs.)</label>
-        <input type="number" formControlName="costoRepuestos" placeholder="0.00" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-bold focus:outline-none focus:border-slate-400">
-      </div>
-    </div>
-
-    <!-- RESUMEN AUTOMÁTICO Y ENVÍO -->
-    <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <!-- Campo: total (Solo lectura para el usuario, se calcula solo) -->
-      <div class="flex items-center space-x-2 font-bold text-slate-800">
-        <span class="text-xs uppercase text-slate-400">Total a Cobrar:</span>
-        <span class="text-base text-emerald-600">Bs. {{formPresupuesto.get('total')?.value|number:'1.2-2'}}</span>
-      </div>
-
-      <div class="flex space-x-2 w-full sm:w-auto">
-        <button type="button" routerLink="/tecnico/servicios-asignados" class="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition-colors">
-          Cancelar
-        </button>
-        <button type="submit" [disabled]="formPresupuesto.invalid" class="w-full sm:w-auto px-6 py-2 bg-[#12335c] hover:bg-[#0f2a4a] text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          Guardar Presupuesto
-        </button>
+      <!-- TOTAL -->
+      <div class="border-t border-slate-100 pt-4 flex items-center justify-between">
+        <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Total Final</span>
+        <span class="text-lg font-bold text-orange-500">
+          Bs. {{formPresupuesto.get('total')?.value | number:'1.2-2'}}
+        </span>
       </div>
     </div>
+
+    <!-- ACCIONES -->
+    <div class="flex items-center justify-end space-x-3">
+      <button type="button" routerLink="/tecnico/servicios-asignados"
+        class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-lg hover:bg-slate-50 transition-colors">
+        Cancelar
+      </button>
+      <button type="submit" [disabled]="formPresupuesto.invalid"
+        class="px-6 py-2.5 bg-[#12335c] hover:bg-[#0f2a4a] text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        Guardar Presupuesto
+      </button>
+    </div>
+
   </form>
-
 </div>

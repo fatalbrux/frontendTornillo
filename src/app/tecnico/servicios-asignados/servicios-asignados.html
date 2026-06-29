@@ -1,30 +1,29 @@
 <div class="space-y-6 text-xs text-slate-700">
 
+  <!-- STATS -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">Servicios Activos</p>
-        <p class="text-2xl font-bold text-slate-700 mt-0.5">2</p>
+        <p class="text-2xl font-bold text-slate-700 mt-0.5">{{serviciosActivos()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       </span>
     </div>
-
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">En Diagnóstico</p>
-        <p class="text-2xl font-bold text-blue-600 mt-0.5">1</p>
+        <p class="text-2xl font-bold text-blue-600 mt-0.5">{{enDiagnostico()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
       </span>
     </div>
-
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">En Reparación</p>
-        <p class="text-2xl font-bold text-orange-500 mt-0.5">1</p>
+        <p class="text-2xl font-bold text-orange-500 mt-0.5">{{enReparacion()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -32,79 +31,72 @@
     </div>
   </div>
 
+  <!-- LISTA DE SERVICIOS -->
   <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
     <div class="text-slate-800 font-bold text-sm border-b border-slate-100 pb-3">
       <span>Mis Servicios Asignados</span>
     </div>
 
-    <div class="p-5 rounded-xl border border-slate-100 bg-slate-50/30 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-      <div class="md:col-span-3 space-y-2">
-        <div class="flex items-center space-x-2">
-          <span class="font-bold text-sm text-slate-800">Servicio #1</span>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-100 text-blue-700 uppercase">En Diagnóstico</span>
-        </div>
-        <div class="grid grid-cols-2 gap-y-1.5 text-slate-500 font-medium">
-          <p><span class="text-slate-400">Cliente:</span> Juan Pérez</p>
-          <p><span class="text-slate-400">Teléfono:</span> 72345678</p>
-          <p class="col-span-2"><span class="text-slate-400">Electrodoméstico:</span> Refrigerador Samsung</p>
-          <p class="col-span-2"><span class="text-slate-400">Problema:</span> No enfría correctamente</p>
-          <p><span class="text-slate-400">Fecha Asignación:</span> 2026-05-08</p>
-        </div>
+    @if (misServicios().length === 0) {
+      <div class="text-center py-10 text-slate-400 font-medium">
+        No tienes servicios asignados actualmente.
       </div>
-      <div class="flex justify-end">
-        <button [routerLink]="['/tecnico/presupuesto',1]" type="button" class="w-full md:w-auto px-6 py-2.5 bg-[#12335c] hover:bg-[#0f2a4a] text-white font-bold rounded-lg transition-colors shadow-xs">
-          Iniciar Diagnóstico
-        </button>
-      </div>
-    </div>
+    }
 
-    <div class="p-5 rounded-xl border border-slate-100 bg-slate-50/30 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-      <div class="md:col-span-3 space-y-2">
-        <div class="flex items-center space-x-2">
-          <span class="font-bold text-sm text-slate-800">Servicio #2</span>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 uppercase">En Reparación</span>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-700 uppercase">A Domicilio</span>
+    @for (serv of misServicios(); track serv.id) {
+      <div class="p-5 rounded-xl border border-slate-100 bg-slate-50/30 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div class="md:col-span-3 space-y-2">
+
+          <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+            <span class="font-bold text-sm text-slate-800">Servicio #{{serv.id}}</span>
+            <!-- Badge estado -->
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase"
+              [class.bg-blue-100]="serv.estado==='En Diagnóstico'"   [class.text-blue-700]="serv.estado==='En Diagnóstico'"
+              [class.bg-orange-100]="serv.estado==='En Reparación'"  [class.text-orange-700]="serv.estado==='En Reparación'"
+              [class.bg-emerald-100]="serv.estado==='Completado'"    [class.text-emerald-700]="serv.estado==='Completado'"
+              [class.bg-amber-100]="serv.estado==='Programado'"      [class.text-amber-700]="serv.estado==='Programado'"
+              [class.bg-red-100]="serv.estado==='Cancelado'"         [class.text-red-700]="serv.estado==='Cancelado'"
+              [class.bg-slate-100]="serv.estado==='En Espera'"       [class.text-slate-600]="serv.estado==='En Espera'">
+              {{serv.estado}}
+            </span>
+            <!-- Badge domicilio -->
+            @if (serv.estDomicilio) {
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-700 uppercase">A Domicilio</span>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-y-1.5 text-slate-500 font-medium">
+            <p><span class="text-slate-400">Cliente:</span> {{serv.cliente?.nombre}} {{serv.cliente?.apellido}}</p>
+            <p><span class="text-slate-400">Teléfono:</span> {{serv.cliente?.telefono}}</p>
+            <p class="col-span-2"><span class="text-slate-400">Electrodoméstico:</span> {{serv.electrodomestico?.tipo}} {{serv.electrodomestico?.marca}}</p>
+            <p class="col-span-2"><span class="text-slate-400">Problema:</span> {{serv.electrodomestico?.observaciones || '—'}}</p>
+            @if (serv.estDomicilio) {
+              <p class="col-span-2"><span class="text-slate-400">Dirección:</span> {{serv.direccionServicio}}</p>
+            }
+            <p><span class="text-slate-400">Fecha:</span> {{serv.fechaProgramada | date:'dd/MM/yyyy'}}</p>
+          </div>
         </div>
-        <div class="grid grid-cols-2 gap-y-1.5 text-slate-500 font-medium">
-          <p><span class="text-slate-400">Cliente:</span> María González</p>
-          <p><span class="text-slate-400">Teléfono:</span> 71234567</p>
-          <p class="col-span-2"><span class="text-slate-400">Electrodoméstico:</span> Lavadora LG</p>
-          <p class="col-span-2"><span class="text-slate-400">Problema:</span> No gira el tambor</p>
-          <p class="col-span-2"><span class="text-slate-400">Dirección:</span> Av. Libertador #123</p>
-          <p><span class="text-slate-400">Fecha Asignación:</span> 2026-05-07</p>
+
+        <!-- ACCIONES según estado -->
+        <div class="flex flex-col space-y-2 items-end w-full">
+          @if (serv.estado === 'Programado' || serv.estado === 'En Diagnóstico') {
+            <button [routerLink]="['/tecnico/presupuesto', serv.id]" type="button"
+              class="w-full md:w-44 px-4 py-2 bg-[#12335c] hover:bg-[#0f2a4a] text-white font-bold rounded-lg transition-colors shadow-xs">
+              Iniciar Diagnóstico
+            </button>
+          }
+          @if (serv.estado === 'En Reparación' || serv.estado === 'Completado') {
+            <button [routerLink]="['/tecnico/presupuesto', serv.id]" type="button"
+              class="w-full md:w-44 px-4 py-2 bg-[#12335c] hover:bg-[#0f2a4a] text-white font-bold rounded-lg transition-colors shadow-xs">
+              Ver Diagnóstico
+            </button>
+            <button type="button"
+              class="w-full md:w-44 px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors shadow-xs">
+              Registrar Insumos
+            </button>
+          }
         </div>
       </div>
-      <div class="flex flex-col space-y-2 justify-end items-end w-full">
-        <button [routerLink]="['/tecnico/presupuesto',2]" type="button" class="w-full md:w-44 px-4 py-2 bg-[#12335c] hover:bg-[#0f2a4a] text-white font-bold rounded-lg transition-colors shadow-xs">
-          Ver Diagnóstico
-        </button>
-        <button type="button" class="w-full md:w-44 px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors shadow-xs">
-          Registrar Insumos
-        </button>
-      </div>
-    </div>
+    }
   </div>
-
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
-    <p class="font-bold text-slate-800">Actualizar Estado de Servicio</p>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <button type="button" class="py-2.5 border border-slate-800 rounded-lg font-bold flex items-center justify-center space-x-2 bg-slate-50">
-        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-        <span>En Diagnóstico</span>
-      </button>
-      <button type="button" class="py-2.5 border border-slate-200 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-slate-50">
-        <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-        <span>En Reparación</span>
-      </button>
-      <button type="button" class="py-2.5 border border-slate-200 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-slate-50">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span>Completado</span>
-      </button>
-      <button type="button" class="py-2.5 border border-slate-200 rounded-lg font-bold flex items-center justify-center space-x-2 hover:bg-slate-50">
-        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-        <span>En Espera</span>
-      </button>
-    </div>
-  </div>
-
 </div>

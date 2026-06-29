@@ -24,9 +24,17 @@ export class Login {
     this.errorLogin.set(null);
     
     this.authService.funLogin(this.credenciales).subscribe({
-      next: () => {
-        this.router.navigate(['/admin/servicios']);
-      },
+      next: (res) => {
+  const role = res.user.role;
+  console.log('rol recibido:', res.user.role);
+  if (role === 'Admin') {
+    this.router.navigate(['/admin/servicios']);
+  } else if (role === 'Tecnico') {
+    this.router.navigate(['/tecnico/servicios-asignados']);
+  } else {
+    this.errorLogin.set('No tienes acceso al sistema.');
+  }
+},
       error: (err) => {
         console.error(err);
         this.errorLogin.set('Credenciales incorrectas o usuario no autorizado.');
