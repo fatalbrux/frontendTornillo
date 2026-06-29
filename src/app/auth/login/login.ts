@@ -24,13 +24,15 @@ export class Login {
     this.errorLogin.set(null);
     
     this.authService.funLogin(this.credenciales).subscribe({
-      next: (res) => {
+    next: (res) => {
   const role = res.user.role;
   console.log('rol recibido:', res.user.role);
   if (role === 'Admin') {
     this.router.navigate(['/admin/servicios']);
   } else if (role === 'Tecnico') {
     this.router.navigate(['/tecnico/servicios-asignados']);
+  } else if (role === 'Cliente') {
+    this.router.navigate(['/cliente/cliente-sesion']);
   } else {
     this.errorLogin.set('No tienes acceso al sistema.');
   }
