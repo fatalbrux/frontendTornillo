@@ -1,11 +1,11 @@
 <div class="space-y-6">
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">Servicios Activos</p>
-        <p class="text-2xl font-bold text-slate-700 mt-0.5">{{datosBack().length}}</p>
+        <p class="text-2xl font-bold text-slate-700 mt-0.5">{{serviciosActivos()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
@@ -15,9 +15,7 @@
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">Pendientes</p>
-        <p class="text-2xl font-bold text-amber-500 mt-0.5">
-          {{datosBack().filter(s=>s.estado==='Programado').length}}
-        </p>
+        <p class="text-2xl font-bold text-amber-500 mt-0.5">{{serviciosPendientes()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -27,9 +25,7 @@
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">Completados</p>
-        <p class="text-2xl font-bold text-emerald-600 mt-0.5">
-          {{datosBack().filter(s=>s.estado==='Terminado').length}}
-        </p>
+        <p class="text-2xl font-bold text-emerald-600 mt-0.5">{{serviciosCompletados()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -39,7 +35,7 @@
     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
       <div>
         <p class="text-[11px] font-medium text-slate-400">Ingresos del Día</p>
-        <p class="text-xl font-bold text-orange-600 mt-0.5">Bs. 1400</p>
+        <p class="text-xl font-bold text-orange-600 mt-0.5">Bs. {{ingresosDelDia()}}</p>
       </div>
       <span class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">$</span>
     </div>
@@ -68,52 +64,73 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/50">
-            <th class="p-3">ID</th>
-            <th class="p-3">Dirección / Cliente</th>
-            <th class="p-3">Fecha</th>
-            <th class="p-3">Tipo</th>
-            <th class="p-3">Estado</th>
-            <th class="p-3">Adelanto</th>
-            <th class="p-3 text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 text-slate-600">
-          @for (serv of datosBack(); track serv.id) {
-            <tr class="hover:bg-slate-50/50 transition-colors">
-              <td class="p-3 font-medium text-slate-400">#{{serv.id}}</td>
-              <td class="p-3 font-semibold text-slate-700">{{serv.direccionServicio}}</td>
-              <td class="p-3 text-slate-400">{{serv.fechaProgramada}}</td>
-              <td class="p-3">
-                <span class="text-[10px] uppercase font-bold" [class.text-blue-600]="serv.estDomicilio" [class.text-slate-500]="!serv.estDomicilio">
-                  {{serv.estDomicilio ? 'A domicilio':'En Taller'}}
-                </span>
-              </td>
-              <td class="p-3">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-                  [class.bg-blue-100]="serv.estado==='Programado'" [class.text-blue-700]="serv.estado==='Programado'"
-                  [class.bg-amber-100]="serv.estado==='En Curso'" [class.text-amber-700]="serv.estado==='En Curso'"
-                  [class.bg-emerald-100]="serv.estado==='Terminado'" [class.text-emerald-700]="serv.estado==='Terminado'">
-                  {{serv.estado}}
-                </span>
-              </td>
-              <td class="p-3 font-medium">Bs. {{serv.recargoDomicilio || 0}}</td>
-              <td class="p-3">
-                <div class="flex items-center justify-center space-x-3">
-                  <button (click)="seleccionarParaEditar(serv)" class="text-slate-400 hover:text-blue-600 transition-colors" title="Editar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                  </button>
-                  <button (click)="eliminar(serv.id)" class="text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  <table class="w-full text-left text-xs">
+  <thead>
+    <tr class="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/50">
+      <th class="p-3">ID</th>
+      <th class="p-3">Cliente</th>
+      <th class="p-3">Electrodoméstico</th>
+      <th class="p-3">Fecha</th>
+      <th class="p-3">Tipo</th>
+      <th class="p-3">Estado</th>
+      <th class="p-3">Adelanto</th>
+      <th class="p-3 text-center">Acciones</th>
+    </tr>
+  </thead>
+  <tbody class="divide-y divide-slate-100 text-slate-600">
+    @for (serv of datosBack(); track serv.id) {
+    <tr class="hover:bg-slate-50/50 transition-colors">
+      <td class="p-3 font-medium text-slate-400">#{{serv.id}}</td>
+
+      <td class="p-3">
+        <p class="font-semibold text-slate-700">{{serv.cliente?.nombre}} {{serv.cliente?.apellido}}</p>
+        <p class="text-slate-400">{{serv.cliente?.telefono}}</p>
+      </td>
+
+      <td class="p-3">
+        <p class="font-semibold text-slate-700">{{serv.electrodomestico?.tipo || '—'}} {{serv.electrodomestico?.marca || ''}}</p>
+        <p class="text-slate-400">{{serv.electrodomestico?.modelo || 'Sin electrodoméstico'}}</p>
+      </td>
+
+      <td class="p-3 text-slate-400">
+        {{serv.fechaProgramada | date:'dd/MM/yyyy HH:mm'}}
+      </td>
+
+      <td class="p-3">
+        <span class="text-[10px] uppercase font-bold"
+          [class.text-blue-600]="serv.estDomicilio"
+          [class.text-slate-500]="!serv.estDomicilio">
+          {{serv.estDomicilio ? 'A domicilio' : 'En Taller'}}
+        </span>
+      </td>
+
+      <td class="p-3">
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+          [class.bg-blue-100]="serv.estado==='Programado'"   [class.text-blue-700]="serv.estado==='Programado'"
+          [class.bg-amber-100]="serv.estado==='En Curso'"    [class.text-amber-700]="serv.estado==='En Curso'"
+          [class.bg-purple-100]="serv.estado==='En revisión'" [class.text-purple-700]="serv.estado==='En revisión'"
+          [class.bg-emerald-100]="serv.estado==='Terminado'" [class.text-emerald-700]="serv.estado==='Terminado'"
+          [class.bg-red-100]="serv.estado==='Cancelado'"     [class.text-red-700]="serv.estado==='Cancelado'">
+          {{serv.estado}}
+        </span>
+      </td>
+
+      <td class="p-3 font-medium text-slate-700">Bs. {{serv.adelanto || 0}}</td>
+
+      <td class="p-3">
+        <div class="flex items-center justify-center space-x-3">
+          <button (click)="seleccionarParaEditar(serv)" class="text-slate-400 hover:text-blue-600 transition-colors" title="Editar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </button>
+          <button (click)="eliminar(serv.id!)" class="text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
     </div>
   </div>
 
@@ -162,36 +179,80 @@
         <button type="button" (click)="cerrarModal()" class="text-slate-400 text-xl leading-none">&times;</button>
       </div>
 
-      <form (ngSubmit)="guardar()" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+      <form (ngSubmit)="guardar()" #formServicio="ngForm" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
         
-        <div class="space-y-3">
-          <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-1 uppercase tracking-wider">Datos del Cliente</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <input type="text" name="nombreCliente" placeholder="Nombre" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
-            <input type="text" name="apellidoCliente" placeholder="Apellido" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
-          </div>
-          <input type="text" name="telefonoCliente" placeholder="Teléfono" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
-        </div>
+ <div>
+  <label class="block text-[10px] font-bold text-slate-400 mb-1">Buscar por Carnet de Identidad (CI)</label>
+  <input type="text" [(ngModel)]="formulario.ciBusqueda" name="ciBusqueda" (ngModelChange)="onCiChange()" placeholder="Escriba el CI" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+<input type="text" [value]="(listaClientes().find(u=>u.ci===formulario.ciBusqueda))?.nombre || ''" readonly class="...">
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <label class="block text-[10px] font-bold text-slate-400 mb-1">Nombre</label>
+    <input type="text" [value]="(listaClientes().find(u=>u.ci===formulario.ciBusqueda))?.nombre || ''" readonly placeholder="Nombre" class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 focus:outline-none cursor-not-allowed">
+  </div>
+  <div>
+    <label class="block text-[10px] font-bold text-slate-400 mb-1">Apellido</label>
+    <input type="text" [value]="(listaClientes().find(u=>u.ci===formulario.ciBusqueda))?.apellido || ''" readonly placeholder="Apellido" class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 focus:outline-none cursor-not-allowed">
+  </div>
+</div>
+<div>
+  <label class="block text-[10px] font-bold text-slate-400 mb-1">Teléfono</label>
+  <input type="text" [value]="(listaClientes().find(u=>u.ci===formulario.ciBusqueda))?.telefono || ''" readonly placeholder="Teléfono" class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 focus:outline-none cursor-not-allowed">
+</div>
 
         <div class="space-y-3">
-          <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-1 uppercase tracking-wider">Datos del Electrodoméstico</h3>
-          <select name="tipoElectro" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
-            <option value="Refrigerador">Refrigerador</option>
-            <option value="Lavadora">Lavadora</option>
-            <option value="Microondas">Microondas</option>
+  <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-1 uppercase tracking-wider">Datos del Electrodoméstico</h3>
+  
+  <input type="text" 
+         [value]="(datosBack().find(s => s.clienteId === (listaClientes().find(u => u.ci === formulario.ciBusqueda))?.id))?.electrodomestico?.tipo || 'Refrigerador'" 
+         readonly 
+         class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed">
+
+  <input type="text" 
+         [value]="(datosBack().find(s => s.clienteId === (listaClientes().find(u => u.ci === formulario.ciBusqueda))?.id))?.electrodomestico?.marca || ''" 
+         readonly 
+         placeholder="Marca" 
+         class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed">
+
+  <input type="text" 
+         [value]="(datosBack().find(s => s.clienteId === (listaClientes().find(u => u.ci === formulario.ciBusqueda))?.id))?.electrodomestico?.modelo || ''" 
+         readonly 
+         placeholder="Modelo" 
+         class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed">
+
+  <input type="text" 
+         [value]="(datosBack().find(s => s.clienteId === (listaClientes().find(u => u.ci === formulario.ciBusqueda))?.id))?.electrodomestico?.numeroSerie || ''" 
+         readonly 
+         placeholder="Número de Serie" 
+         class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed">
+         <textarea [value]="(datosBack().find(s => s.clienteId === (listaClientes().find(u => u.ci === formulario.ciBusqueda))?.id))?.electrodomestico?.observaciones || ''" 
+            readonly 
+            placeholder="Descripción del Problema" 
+            rows="3" 
+            class="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed resize-none"></textarea>
+</div>
+
+        <div class="space-y-3">
+          <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-1 uppercase tracking-wider">Asignación de Personal</h3>
+          <label class="block text-[10px] font-bold text-slate-400 mb-1">Técnico encargado</label>
+          <select [(ngModel)]="formulario.tecnicoId" name="tecnicoId" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+            <option [value]="0" disabled selected>Seleccione un Técnico</option>
+            @for (t of listaTecnicos(); track t.id) {
+              <option [value]="t.id">{{t.nombre}} {{t.apellido}}</option>
+            }
           </select>
-          <input type="text" name="marcaElectro" placeholder="Marca" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
-          <textarea name="descProblema" placeholder="Descripción del Problema" rows="3" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 resize-none focus:outline-none focus:border-slate-400"></textarea>
         </div>
 
         <div class="space-y-3">
           <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-1 uppercase tracking-wider">Tipo de Servicio</h3>
           <div class="grid grid-cols-2 gap-4">
-            <button type="button" (click)="formulario.estDomicilio=false" class="p-3 rounded-lg border text-left bg-white transition-all" [class.border-slate-800]="!formulario.estDomicilio" [class.border-slate-200]="formulario.estDomicilio">
+            <button type="button" (click)="formulario.estDomicilio=false; formulario.recargoDomicilio=0" class="p-3 rounded-lg border text-left bg-white transition-all" [class.border-slate-800]="!formulario.estDomicilio" [class.border-slate-200]="formulario.estDomicilio">
               <p class="font-bold">En Taller</p>
               <p class="text-[10px] text-slate-400">El cliente trae el equipo</p>
             </button>
-            <button type="button" (click)="formulario.estDomicilio=true" class="p-3 rounded-lg border text-left bg-white transition-all" [class.border-slate-800]="formulario.estDomicilio" [class.border-slate-200]="!formulario.estDomicilio">
+            <button type="button" (click)="formulario.estDomicilio=true; formulario.recargoDomicilio=25" class="p-3 rounded-lg border text-left bg-white transition-all" [class.border-slate-800]="formulario.estDomicilio" [class.border-slate-200]="!formulario.estDomicilio">
               <p class="font-bold">A domicilio</p>
               <p class="text-[10px] text-slate-400">Servicio en ubicación del cliente</p>
             </button>
@@ -199,7 +260,8 @@
           
           @if (formulario.estDomicilio) {
             <div class="space-y-1 pt-1">
-              <input type="text" [(ngModel)]="formulario.direccionServicio" name="direccion" placeholder="Dirección de Ubicación" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+              <input type="text" [(ngModel)]="formulario.direccionServicio" name="direccion" placeholder="Dirección de Ubicación" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" required>
+              <p class="text-[10px] text-amber-600 font-medium">* Recargo fijo aplicado por envío técnico: Bs. {{formulario.recargoDomicilio}}</p>
             </div>
           }
         </div>
@@ -217,15 +279,23 @@
         <div class="space-y-3">
           <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-1 uppercase tracking-wider">Costos iniciales</h3>
           <div class="grid grid-cols-2 gap-4">
-            <input type="number" name="costoAproximado" placeholder="Costo Aproximado (Bs.)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
-            <input type="number" [(ngModel)]="formulario.recargoDomicilio" name="recargo" placeholder="Adelanto Requerido (Bs.)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1">Costo Aproximado (Bs.)</label>
+              <input type="number" [(ngModel)]="formulario.costoAproximado" name="costoAproximado" placeholder="Costo Aproximado (Bs.)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" required min="1">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1">Adelanto Recibido (Bs.)</label>
+              <input type="number" [(ngModel)]="formulario.adelanto" name="adelanto" placeholder="Adelanto Requerido (Bs.)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" required [min]="formulario.costoAproximado*0.5" #adelantoInput="ngModel">
+            </div>
           </div>
-          <p class="text-[10px] text-slate-400 italic">* De momento el adelanto mapea sobre la variable recargo del servicio base</p>
+          @if (adelantoInput.invalid && (adelantoInput.dirty || adelantoInput.touched)) {
+            <p class="text-[10px] text-red-500 font-medium">El adelanto debe ser de por lo menos el 50% del costo aproximado (Mínimo: Bs. {{formulario.costoAproximado*0.5}})</p>
+          }
         </div>
 
         <div class="flex items-center justify-center space-x-3 pt-4 border-t border-slate-100">
           <button type="button" (click)="cerrarModal()" class="py-2 w-40 border border-slate-200 rounded-lg text-slate-700 font-bold hover:bg-slate-50 transition-colors">Cancelar</button>
-          <button type="submit" class="py-2 w-40 border border-slate-800 rounded-lg text-slate-800 font-bold hover:bg-slate-50 transition-colors">Guardar</button>
+          <button type="submit" [disabled]="formServicio.invalid || formulario.clienteId===0 || formulario.tecnicoId===0 " class="py-2 w-40 border border-slate-800 rounded-lg text-slate-800 font-bold hover:bg-slate-800 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-800 transition-all">Guardar</button>
         </div>
       </form>
     </div>
