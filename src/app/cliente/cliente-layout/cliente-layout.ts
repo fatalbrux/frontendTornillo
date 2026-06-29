@@ -1,9 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-cliente-layout',
-  imports: [],
+  standalone: true,
+  imports: [RouterOutlet],
   templateUrl: './cliente-layout.html',
-  styleUrl: './cliente-layout.css',
+  styleUrl: './cliente-layout.css'
 })
-export class ClienteLayout {}
+export class ClienteLayoutComponent {
+  protected readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  funSalir(): void {
+    this.authService.funLogout();
+    this.router.navigate(['/login']);
+  }
+}
