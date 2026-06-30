@@ -1,0 +1,64 @@
+<div class="p-6">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Inventario</h2>
+
+  <!-- Botones principales del módulo -->
+  <div class="flex flex-wrap gap-3 mb-6">
+    <button
+      (click)="toggleSeccion('insumos')"
+      [ngClass]="seccionActiva === 'insumos'
+        ? 'bg-green-800 text-white'
+        : 'bg-white text-green-800 border border-green-800'"
+      class="px-5 py-2 rounded-lg font-semibold transition-colors">
+      Insumos
+    </button>
+
+    <button
+      (click)="toggleSeccion('lotes')"
+      [ngClass]="seccionActiva === 'lotes'
+        ? 'bg-green-800 text-white'
+        : 'bg-white text-green-800 border border-green-800'"
+      class="px-5 py-2 rounded-lg font-semibold transition-colors">
+      Lotes
+    </button>
+  </div>
+
+  <!-- SECCIÓN INSUMOS (con categorías y unidades anidadas) -->
+  <div *ngIf="seccionActiva === 'insumos'" class="space-y-4">
+    <app-insumos></app-insumos>
+
+    <!-- Sub-botones que despliegan CRUDs auxiliares DENTRO de insumos -->
+    <div class="flex gap-3 mt-4 pl-4 border-l-4 border-green-300">
+      <button
+        (click)="toggleSubSeccion('categorias')"
+        [ngClass]="subSeccionActiva === 'categorias'
+          ? 'bg-green-600 text-white'
+          : 'bg-white text-green-600 border border-green-600'"
+        class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+        Categorías
+      </button>
+
+      <button
+        (click)="toggleSubSeccion('unidades')"
+        [ngClass]="subSeccionActiva === 'unidades'
+          ? 'bg-green-600 text-white'
+          : 'bg-white text-green-600 border border-green-600'"
+        class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+        Unidades de medida
+      </button>
+    </div>
+
+    <!-- CRUDs anidados -->
+    <div *ngIf="subSeccionActiva === 'categorias'" class="mt-2">
+      <app-categorias></app-categorias>
+    </div>
+
+    <div *ngIf="subSeccionActiva === 'unidades'" class="mt-2">
+      <app-unidades-medida></app-unidades-medida>
+    </div>
+  </div>
+
+  <!-- SECCIÓN LOTES -->
+  <div *ngIf="seccionActiva === 'lotes'">
+    <app-lotes></app-lotes>
+  </div>
+</div>
