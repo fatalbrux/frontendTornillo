@@ -1,1 +1,36 @@
-<p>cliente-sesion works!</p>
+<div class="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+  <div class="w-full max-w-lg bg-white p-8 rounded-3xl shadow-2xl border border-slate-100">
+    <h2 class="text-3xl font-black text-[#12335c] mb-6 text-center">Solicitar Servicio</h2>
+    
+    <form (ngSubmit)="enviarSolicitud()" class="space-y-6">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Equipo a reparar</label>
+        <select [(ngModel)]="solicitud.equipo" name="equipo" class="w-full p-4 mt-2 bg-slate-50 rounded-xl border border-slate-200 outline-none">
+          <option>Refrigerador</option>
+          <option>Lavadora</option>
+          <option>Microondas</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Detalle del problema</label>
+        <textarea [(ngModel)]="solicitud.detalle" name="detalle" rows="4" class="w-full p-4 mt-2 bg-slate-50 rounded-xl border border-slate-200 outline-none" required></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-[#12335c] text-white py-4 rounded-xl font-black hover:bg-[#0e2746] transition-all">
+        CONFIRMAR SOLICITUD
+      </button>
+    </form>
+  </div>
+
+  @if (mostrarModal) {
+    <div class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-6 z-50">
+      <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm text-center animate-fade-in">
+        <div class="text-6xl mb-4">✅</div>
+        <h3 class="text-2xl font-bold text-[#12335c]">¡Solicitud Procesada!</h3>
+        <p class="text-slate-500 mt-4">Tu solicitud ha sido enviada. Un técnico se contactará contigo al número registrado para coordinar tu atención.</p>
+        <button (click)="cerrarModal()" class="mt-8 w-full bg-[#12335c] text-white py-3 rounded-xl font-bold">ENTENDIDO</button>
+      </div>
+    </div>
+  }
+</div>
