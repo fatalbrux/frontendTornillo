@@ -5,7 +5,7 @@ import { DetalleCompra } from '../interfaces/detalle-compra.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DetalleCompraService {
-  private readonly urlBase = 'http://localhost:3000/detalle_compras';
+  private readonly urlBase = 'http://localhost:3000/detalle-compras';
   private readonly http = inject(HttpClient);
 
   funListar(): Observable<DetalleCompra[]> {

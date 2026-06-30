@@ -1,0 +1,70 @@
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+    <h2 class="font-bold text-lg">Facturas</h2>
+    <button (click)="abrirNuevaFactura()" class="bg-[#1a365d] text-white px-4 py-2 rounded-lg font-bold">+ NUEVA FACTURA</button>
+  </div>
+
+  <table class="w-full bg-white border rounded-xl overflow-hidden">
+    <tr class="text-xs text-slate-400 border-b bg-slate-50">
+      <th class="p-3 text-left">N° Factura</th>
+      <th class="p-3 text-left">Servicio</th>
+      <th class="p-3 text-left">Fecha Emisión</th>
+      <th class="p-3 text-left">NIT</th>
+      <th class="p-3 text-left">Razón Social</th>
+      <th class="p-3 text-left">Monto</th>
+      <th class="p-3 text-right">Acciones</th>
+    </tr>
+    @for (fact of listaFacturas(); track fact.id) {
+      <tr class="border-t text-sm hover:bg-slate-50">
+        <td class="p-3 font-medium">{{ fact.numeroFactura }}</td>
+        <td class="p-3 text-slate-500">{{ obtenerInfoServicio(fact.servicioId) }}</td>
+        <td class="p-3 text-slate-500">{{ fact.fechaEmision }}</td>
+        <td class="p-3 text-slate-500">{{ fact.nit }}</td>
+        <td class="p-3 text-slate-500">{{ fact.razonSocial }}</td>
+        <td class="p-3 font-bold">{{ fact.monto | number:'1.2-2' }}</td>
+        <td class="p-3 text-right space-x-2">
+          <button (click)="editarFactura(fact)" class="text-orange-500 hover:text-orange-700">✏️</button>
+          <button (click)="eliminarFactura(fact.id)" class="text-red-500 hover:text-red-700">🗑️</button>
+        </td>
+      </tr>
+    }
+    @if (listaFacturas().length === 0) {
+      <tr><td colspan="7" class="p-4 text-center text-slate-400">No hay facturas registradas.</td></tr>
+    }
+  </table>
+
+  <!-- Pagos con su propio componente -->
+  <app-pagos (cambio)="refrescar()" />
+</div>
+
+@if (mostrarModal()) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h2 class="font-bold">{{ form.id ? 'EDITAR FACTURA' : 'NUEVA FACTURA' }}</h2>
+        <button (click)="cerrarModal()" class="text-slate-400">✕</button>
+      </div>
+
+      <select [(ngModel)]="form.servicioId" class="w-full border p-2 rounded">
+        <option [ngValue]="undefined">Seleccionar Servicio...</option>
+        @for (s of listaServicios(); track s.id) { <option [ngValue]="s.id">#{{s.id}} - {{s.estado}}</option> }
+      </select>
+
+      <div class="grid grid-cols-2 gap-2">
+        <input [(ngModel)]="form.numeroFactura" placeholder="N° Factura" class="border p-2 rounded">
+        <input [(ngModel)]="form.fechaEmision" type="date" class="border p-2 rounded">
+        <input [(ngModel)]="form.nit" placeholder="NIT" class="border p-2 rounded">
+        <input [(ngModel)]="form.razonSocial" placeholder="Razón Social" class="border p-2 rounded">
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-xs font-bold text-slate-500 mb-1">Monto</label>
+        <input [(ngModel)]="form.monto" type="number" class="border p-2 rounded">
+      </div>
+
+      <button (click)="guardarFactura()" class="w-full bg-[#1a365d] text-white p-3 rounded-lg font-bold">
+        {{ form.id ? 'ACTUALIZAR FACTURA' : 'GUARDAR FACTURA' }}
+      </button>
+    </div>
+  </div>
+}

@@ -1,0 +1,77 @@
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+    <h2 class="font-bold text-lg">Detalle de Compras</h2>
+    <button (click)="abrirNuevoDetalle()" class="bg-[#1a365d] text-white px-4 py-2 rounded-lg font-bold">+ NUEVO DETALLE</button>
+  </div>
+
+  <table class="w-full bg-white border rounded-xl overflow-hidden">
+    <tr class="text-xs text-slate-400 border-b bg-slate-50">
+      <th class="p-3 text-left">Compra</th>
+      <th class="p-3 text-left">Insumo</th>
+      <th class="p-3 text-left">Cantidad</th>
+      <th class="p-3 text-left">Precio Unit.</th>
+      <th class="p-3 text-left">Subtotal</th>
+      <th class="p-3 text-right">Acciones</th>
+    </tr>
+    @for (det of listaDetalles(); track det.id) {
+      <tr class="border-t text-sm hover:bg-slate-50">
+        <td class="p-3 text-slate-500">{{ obtenerInfoCompra(det.compraId) }}</td>
+        <td class="p-3 font-medium">{{ obtenerNombreInsumo(det.insumoId) }}</td>
+        <td class="p-3 text-slate-500">{{ det.cantidad }}</td>
+        <td class="p-3 text-slate-500">{{ det.precioUnitario | number:'1.2-2' }}</td>
+        <td class="p-3 font-bold">{{ det.subtotal | number:'1.2-2' }}</td>
+        <td class="p-3 text-right space-x-2">
+          <button (click)="editarDetalle(det)" class="text-orange-500 hover:text-orange-700">✏️</button>
+          <button (click)="eliminarDetalle(det.id)" class="text-red-500 hover:text-red-700">🗑️</button>
+        </td>
+      </tr>
+    }
+    @if (listaDetalles().length === 0) {
+      <tr><td colspan="6" class="p-4 text-center text-slate-400">No hay detalles de compra registrados.</td></tr>
+    }
+  </table>
+
+  <!-- Proveedores con su propio componente -->
+  <app-proveedores (cambio)="refrescar()" />
+</div>
+
+@if (mostrarModal()) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h2 class="font-bold">{{ form.id ? 'EDITAR DETALLE' : 'NUEVO DETALLE' }}</h2>
+        <button (click)="cerrarModal()" class="text-slate-400">✕</button>
+      </div>
+
+      <select [(ngModel)]="form.compraId" class="w-full border p-2 rounded">
+        <option [ngValue]="undefined">Seleccionar Compra...</option>
+        @for (c of listaCompras(); track c.id) { <option [ngValue]="c.id">#{{c.id}} - {{c.fechaCompra}}</option> }
+      </select>
+
+      <select [(ngModel)]="form.insumoId" class="w-full border p-2 rounded">
+        <option [ngValue]="undefined">Seleccionar Insumo...</option>
+        @for (i of listaInsumos(); track i.id) { <option [ngValue]="i.id">{{i.nombre}}</option> }
+      </select>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col">
+          <label class="text-xs font-bold text-slate-500 mb-1">Cantidad</label>
+          <input [(ngModel)]="form.cantidad" (ngModelChange)="calcularSubtotal()" type="number" class="border p-2 rounded">
+        </div>
+        <div class="flex flex-col">
+          <label class="text-xs font-bold text-slate-500 mb-1">Precio Unitario</label>
+          <input [(ngModel)]="form.precioUnitario" (ngModelChange)="calcularSubtotal()" type="number" class="border p-2 rounded">
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-xs font-bold text-slate-500 mb-1">Subtotal</label>
+        <input [ngModel]="form.subtotal" type="number" disabled class="border p-2 rounded bg-slate-100 text-slate-500">
+      </div>
+
+      <button (click)="guardarDetalle()" class="w-full bg-[#1a365d] text-white p-3 rounded-lg font-bold">
+        {{ form.id ? 'ACTUALIZAR DETALLE' : 'GUARDAR DETALLE' }}
+      </button>
+    </div>
+  </div>
+}
