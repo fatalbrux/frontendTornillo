@@ -49,6 +49,14 @@ export class InsumosComponent implements OnInit {
     this.mostrarModal.set(true);
   }
 
+  obtenerNombreCategoria(id?: number): string {
+    return this.listaCat().find(c => c.id === id)?.nombre ?? '-';
+  }
+
+  obtenerNombreUnidad(id?: number): string {
+    return this.listaUni().find(u => u.id === id)?.nombre ?? '-';
+  }
+
   editarInsumo(ins: Insumo) {
     this.form = { ...ins };
     this.mostrarModal.set(true);

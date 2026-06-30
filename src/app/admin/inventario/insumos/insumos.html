@@ -4,23 +4,39 @@
     <button (click)="abrirNuevoInsumo()" class="bg-[#1a365d] text-white px-4 py-2 rounded-lg font-bold">+ NUEVO PRODUCTO</button>
   </div>
 
-  <table class="w-full bg-white border rounded-xl p-4">
-    <tr class="text-xs text-slate-400 border-b">
+  <table class="w-full bg-white border rounded-xl overflow-hidden">
+    <tr class="text-xs text-slate-400 border-b bg-slate-50">
       <th class="p-3 text-left">Nombre</th>
       <th class="p-3 text-left">Código</th>
+      <th class="p-3 text-left">Categoría</th>
+      <th class="p-3 text-left">Unidad</th>
       <th class="p-3 text-left">Stock</th>
       <th class="p-3 text-right">Acciones</th>
     </tr>
     @for (ins of listaInsumos(); track ins.id) {
-      <tr class="border-t text-sm">
-        <td class="p-3">{{ins.nombre}}</td>
-        <td class="p-3">{{ins.codigoBase}}</td>
-        <td class="p-3">{{ins.stock}}</td>
+      <tr class="border-t text-sm hover:bg-slate-50">
+        <td class="p-3 font-medium">{{ins.nombre}}</td>
+        <td class="p-3 text-slate-500">{{ins.codigoBase}}</td>
+        <td class="p-3 text-slate-500">{{ obtenerNombreCategoria(ins.categoriaId) }}</td>
+        <td class="p-3 text-slate-500">{{ obtenerNombreUnidad(ins.unidadMedidadId) }}</td>
+        <td class="p-3">
+          <span
+            class="px-2 py-1 rounded-full text-xs font-bold"
+            [class.bg-red-100]="ins.stock <= ins.stockMinimo"
+            [class.text-red-600]="ins.stock <= ins.stockMinimo"
+            [class.bg-green-100]="ins.stock > ins.stockMinimo"
+            [class.text-green-600]="ins.stock > ins.stockMinimo">
+            {{ins.stock}}
+          </span>
+        </td>
         <td class="p-3 text-right space-x-2">
-          <button (click)="editarInsumo(ins)" class="text-orange-500">✏️</button>
-          <button (click)="eliminarInsumo(ins.id)" class="text-red-500">🗑️</button>
+          <button (click)="editarInsumo(ins)" class="text-orange-500 hover:text-orange-700">✏️</button>
+          <button (click)="eliminarInsumo(ins.id)" class="text-red-500 hover:text-red-700">🗑️</button>
         </td>
       </tr>
+    }
+    @if (listaInsumos().length === 0) {
+      <tr><td colspan="6" class="p-4 text-center text-slate-400">No hay productos registrados.</td></tr>
     }
   </table>
 
@@ -62,12 +78,12 @@
 
       <select [(ngModel)]="form.categoriaId" class="w-full border p-2 rounded">
         <option [ngValue]="undefined">Seleccionar Categoría...</option>
-        @for (c of listaCat(); track c.id) { <option [value]="c.id">{{c.nombre}}</option> }
+        @for (c of listaCat(); track c.id) { <option [ngValue]="c.id">{{c.nombre}}</option> }
       </select>
 
       <select [(ngModel)]="form.unidadMedidadId" class="w-full border p-2 rounded">
         <option [ngValue]="undefined">Seleccionar Unidad...</option>
-        @for (u of listaUni(); track u.id) { <option [value]="u.id">{{u.nombre}}</option> }
+        @for (u of listaUni(); track u.id) { <option [ngValue]="u.id">{{u.nombre}}</option> }
       </select>
 
       <button (click)="guardarInsumo()" class="w-full bg-[#1a365d] text-white p-3 rounded-lg font-bold">
