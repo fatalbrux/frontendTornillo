@@ -1,19 +1,9 @@
 import { Component } from '@angular/core';
-
+import { InsumosComponent } from './insumos/insumos';
 @Component({
   selector: 'app-inventario',
-  templateUrl: './inventario.component.html'
+  standalone: true,
+  imports: [InsumosComponent], // Lo declaramos como hijo
+  templateUrl: './inventario.html'
 })
-export class InventarioComponent {
-  seccionActiva: string | null = null;
-  subSeccionActiva: string | null = null;
-
-  toggleSeccion(seccion: string): void {
-    this.seccionActiva = this.seccionActiva === seccion ? null : seccion;
-    this.subSeccionActiva = null; // resetea sub al cambiar sección
-  }
-
-  toggleSubSeccion(sub: string): void {
-    this.subSeccionActiva = this.subSeccionActiva === sub ? null : sub;
-  }
-}
+export class InventarioComponent {}

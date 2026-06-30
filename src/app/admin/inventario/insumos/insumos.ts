@@ -1,98 +1,87 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
-import { InsumoService } from '../../../core/services/insumo.service';
-import { CategoriaService } from '../../../core/services/categoria.service';
-import { UnidadMedidaService } from '../../../core/services/unidad-medida.service';
+import { InsumoService } from '../../../core/services/insumos';
+import { CategoriaService } from '../../../core/services/categorias';
+import { UnidadMedidaService } from '../../../core/services/unidades-medida';
 import { Insumo } from '../../../core/interfaces/insumo.interface';
-import { Categoria } from '../../../core/interfaces/categoria.interface';
-import { UnidadMedida } from '../../../core/interfaces/unidad-medida.interface';
+import { CategoriasComponent } from '../categorias/categorias';
+import { UnidadesMedidaComponent } from '../unidades-medida/unidades-medida';
+import { ElectrodomesticosService } from '../../../core/services/electrodomesticos';
 
 @Component({
   selector: 'app-insumos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './insumos.component.html'
+  imports: [CommonModule, FormsModule, CategoriasComponent, UnidadesMedidaComponent],
+  templateUrl: './insumos.html'
 })
 export class InsumosComponent implements OnInit {
-  insumos: Insumo[] = [];
-  insumosFiltrados: Insumo[] = [];
-  categorias: Categoria[] = [];
-  unidades: UnidadMedida[] = [];
-  busqueda = '';
-  modalAbierto = false;
-  modoEdicion = false;
-  form: Partial<Insumo> = {};
-  idEditando?: number;
+  private readonly insumoSvc = inject(InsumoService);
+  private readonly catSvc = inject(CategoriaService);
+  private readonly uniSvc = inject(UnidadMedidaService);
+  private readonly electroSvc = inject(ElectrodomesticosService);
 
-  constructor(
-    private insumoSvc: InsumoService,
-    private categoriaSvc: CategoriaService,
-    private unidadSvc: UnidadMedidaService
-  ) {}
+  protected listaInsumos = signal<Insumo[]>([]);
+  protected listaCat = signal<any[]>([]);
+  protected listaUni = signal<any[]>([]);
+  protected listaElectro = signal<any[]>([]);
 
-  ngOnInit(): void {
-    forkJoin({
-      categorias: this.categoriaSvc.getAll(),
-      unidades: this.unidadSvc.getAll()
-    }).subscribe(({ categorias, unidades }) => {
-      this.categorias = categorias;
-      this.unidades = unidades;
-      this.cargar();
-    });
+  protected mostrarModal = signal(false);
+
+  protected formInicial: Partial<Insumo> = {
+    nombre: '', codigoBase: '', descripcion: '', stock: 0,
+    stockMinimo: 0, tipoElectrodomestico: '', categoriaId: undefined, unidadMedidadId: undefined
+  };
+
+  protected form: Partial<Insumo> = { ...this.formInicial };
+
+  ngOnInit(): void { this.cargarDatos(); }
+
+  cargarDatos(): void {
+    this.catSvc.funListar().subscribe(d => this.listaCat.set(d));
+    this.uniSvc.funListar().subscribe(d => this.listaUni.set(d));
+    this.insumoSvc.funListar().subscribe(d => this.listaInsumos.set(d));
+    this.electroSvc.funListar().subscribe(d => this.listaElectro.set(d));
   }
 
-  cargar(): void {
-    this.insumoSvc.getAll().subscribe(data => {
-      this.insumos = data;
-      this.insumosFiltrados = data;
-    });
+  abrirNuevoInsumo() {
+    this.form = { ...this.formInicial };
+    this.mostrarModal.set(true);
   }
 
-  filtrar(): void {
-    const q = this.busqueda.toLowerCase();
-    this.insumosFiltrados = this.insumos.filter(i =>
-      i.nombre.toLowerCase().includes(q) || i.codigoBase.toLowerCase().includes(q)
-    );
-  }
-
-  getNombreCategoria(id: number): string {
-    return this.categorias.find(c => c.id === id)?.nombre ?? '—';
-  }
-
-  getNombreUnidad(id: number): string {
-    return this.unidades.find(u => u.id === id)?.nombre ?? '—';
-  }
-
-  abrirModal(): void {
-    this.form = {};
-    this.modoEdicion = false;
-    this.modalAbierto = true;
-  }
-
-  editar(ins: Insumo): void {
+  editarInsumo(ins: Insumo) {
     this.form = { ...ins };
-    this.idEditando = ins.id;
-    this.modoEdicion = true;
-    this.modalAbierto = true;
+    this.mostrarModal.set(true);
   }
 
-  cerrarModal(): void {
-    this.modalAbierto = false;
-    this.form = {};
+  eliminarInsumo(id?: number) {
+    if (!id) return;
+    if (!confirm('¿Eliminar este producto?')) return;
+    this.insumoSvc.funEliminar(id).subscribe(() => this.cargarDatos());
   }
 
-  guardar(): void {
-    if (!this.form.nombre?.trim()) return;
-    const accion = this.modoEdicion
-      ? this.insumoSvc.update(this.idEditando!, this.form as Insumo)
-      : this.insumoSvc.create(this.form as Insumo);
-    accion.subscribe(() => { this.cargar(); this.cerrarModal(); });
+  guardarInsumo() {
+    const peticion = this.form.id
+      ? this.insumoSvc.funEditar(this.form, this.form.id)
+      : this.insumoSvc.funGuardar(this.form);
+
+    peticion.subscribe({
+      next: () => {
+        this.cargarDatos();
+        this.mostrarModal.set(false);
+        this.form = { ...this.formInicial };
+      },
+      error: (err) => console.error('Error al guardar insumo:', err)
+    });
   }
 
-  eliminar(id: number): void {
-    if (!confirm('¿Eliminar este insumo?')) return;
-    this.insumoSvc.delete(id).subscribe(() => this.cargar());
+  cerrarModal() {
+    this.mostrarModal.set(false);
+    this.form = { ...this.formInicial };
+  }
+
+  // Llamado por los componentes hijos cuando guardan/editan/eliminan
+  refrescar(): void {
+    this.cargarDatos();
   }
 }

@@ -5,12 +5,15 @@ import { Categoria } from '../interfaces/categoria.interface';
 
 @Injectable({ providedIn: 'root' })
 export class CategoriaService {
-  // Asegúrate de que la URL coincida con tu backend NestJS
-  private readonly urlBase = 'http://localhost:3000/categorias'; 
+  private readonly urlBase = 'http://localhost:3000/categorias';
   private readonly http = inject(HttpClient);
 
   funListar(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(this.urlBase);
+  }
+
+  funObtenerUno(id: number): Observable<Categoria> {
+    return this.http.get<Categoria>(`${this.urlBase}/${id}`);
   }
 
   funGuardar(dato: Partial<Categoria>): Observable<Categoria> {
