@@ -63,14 +63,15 @@
           <span>Diagnósticos</span>
         </a>
 
-        <a routerLink="/admin/insumos" routerLinkActive="bg-white/10 text-white" 
-          class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-all">
-          <span>Insumos</span>
-        </a>
-        <a routerLink="/admin/lotes" routerLinkActive="bg-white/10 text-white" 
-          class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-all">
-          <span>Lotes</span>
-        </a>
+        <div class="relative group">
+          <a routerLink="/admin/inventario" routerLinkActive="bg-white/10 text-white"
+            class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-all flex items-center space-x-1.5 font-semibold text-xs">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            </svg>
+            <span>Inventario</span>
+          </a>
+        </div>
       </nav>
 
       <a routerLink="/admin/personal" routerLinkActive="bg-white/10 text-white"

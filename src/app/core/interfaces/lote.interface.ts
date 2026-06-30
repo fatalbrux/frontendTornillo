@@ -6,4 +6,5 @@ export interface Lote {
   precioVentaSugerido: number;
   stockActual: number;
   fechaIngreso: string;
+  fechaVencimiento: string; // Agregamos esta propiedad
 }

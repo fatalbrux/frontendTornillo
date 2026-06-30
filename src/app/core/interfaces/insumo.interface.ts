@@ -1,8 +1,12 @@
 export interface Insumo {
   id?: number;
-  categoriaId: number;
-  unidadMedidaId: number;
-  codigoBase: string;
   nombre: string;
+  codigoBase: string;
   descripcion: string;
+  stock: number;
+  stockMinimo: number;
+  tipoElectrodomestico: string;
+  // Agregamos estas dos propiedades que faltaban
+  categoriaId: number;
+  unidadMedidadId: number;
 }

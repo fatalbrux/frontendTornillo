@@ -1,102 +1,71 @@
-<div class="bg-white rounded-xl shadow p-5">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="text-lg font-bold text-gray-700">Insumos</h3>
-    <button (click)="abrirModal()"
-      class="bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
-      + Nuevo insumo
-    </button>
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+    <h2 class="font-bold text-lg">Panel de Inventario</h2>
+    <button (click)="abrirNuevoInsumo()" class="bg-[#1a365d] text-white px-4 py-2 rounded-lg font-bold">+ NUEVO PRODUCTO</button>
   </div>
 
-  <!-- Buscador -->
-  <input [(ngModel)]="busqueda" (ngModelChange)="filtrar()" type="text" placeholder="Buscar insumo..."
-    class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-green-400"/>
+  <table class="w-full bg-white border rounded-xl p-4">
+    <tr class="text-xs text-slate-400 border-b">
+      <th class="p-3 text-left">Nombre</th>
+      <th class="p-3 text-left">Código</th>
+      <th class="p-3 text-left">Stock</th>
+      <th class="p-3 text-right">Acciones</th>
+    </tr>
+    @for (ins of listaInsumos(); track ins.id) {
+      <tr class="border-t text-sm">
+        <td class="p-3">{{ins.nombre}}</td>
+        <td class="p-3">{{ins.codigoBase}}</td>
+        <td class="p-3">{{ins.stock}}</td>
+        <td class="p-3 text-right space-x-2">
+          <button (click)="editarInsumo(ins)" class="text-orange-500">✏️</button>
+          <button (click)="eliminarInsumo(ins.id)" class="text-red-500">🗑️</button>
+        </td>
+      </tr>
+    }
+  </table>
 
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm">
-      <thead>
-        <tr class="bg-green-50 text-green-900">
-          <th class="text-left p-3 rounded-l-lg">Código</th>
-          <th class="text-left p-3">Nombre</th>
-          <th class="text-left p-3">Categoría</th>
-          <th class="text-left p-3">Unidad</th>
-          <th class="text-left p-3 rounded-r-lg">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let ins of insumosFiltrados" class="border-b border-gray-100 hover:bg-gray-50">
-          <td class="p-3 font-mono text-xs text-gray-500">{{ ins.codigoBase }}</td>
-          <td class="p-3 font-medium">{{ ins.nombre }}</td>
-          <td class="p-3 text-gray-500">{{ getNombreCategoria(ins.categoriaId) }}</td>
-          <td class="p-3 text-gray-500">{{ getNombreUnidad(ins.unidadMedidaId) }}</td>
-          <td class="p-3 flex gap-2">
-            <button (click)="editar(ins)" class="text-blue-600 hover:text-blue-800 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-              </svg>
-            </button>
-            <button (click)="eliminar(ins.id)" class="text-red-500 hover:text-red-700 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="insumosFiltrados.length === 0">
-          <td colspan="5" class="p-6 text-center text-gray-400">No se encontraron insumos</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- Categorías y Unidades de medida con sus propios componentes -->
+  <app-categorias (cambio)="refrescar()" />
+  <app-unidades-medida (cambio)="refrescar()" />
+</div>
 
-  <!-- Modal -->
-  <div *ngIf="modalAbierto" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
-      <h4 class="text-lg font-bold text-gray-800 mb-4">
-        {{ modoEdicion ? 'Editar insumo' : 'Nuevo insumo' }}
-      </h4>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Código base</label>
-          <input [(ngModel)]="form.codigoBase" type="text" placeholder="Ej. INS-001"
-            class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"/>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Nombre</label>
-          <input [(ngModel)]="form.nombre" type="text" placeholder="Nombre del insumo"
-            class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"/>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Categoría</label>
-          <select [(ngModel)]="form.categoriaId"
-            class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
-            <option [ngValue]="null">Seleccionar...</option>
-            <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Unidad de medida</label>
-          <select [(ngModel)]="form.unidadMedidaId"
-            class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
-            <option [ngValue]="null">Seleccionar...</option>
-            <option *ngFor="let u of unidades" [ngValue]="u.id">{{ u.nombre }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Descripción</label>
-          <input [(ngModel)]="form.descripcion" type="text" placeholder="Opcional"
-            class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"/>
-        </div>
+@if (mostrarModal()) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h2 class="font-bold">{{ form.id ? 'EDITAR PRODUCTO' : 'NUEVO PRODUCTO' }}</h2>
+        <button (click)="cerrarModal()" class="text-slate-400">✕</button>
       </div>
-      <div class="flex gap-3 mt-6">
-        <button (click)="cerrarModal()"
-          class="flex-1 border border-gray-200 text-gray-600 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50">
-          Cancelar
-        </button>
-        <button (click)="guardar()"
-          class="flex-1 bg-green-800 text-white py-2 rounded-lg text-sm font-semibold hover:bg-green-700">
-          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
-        </button>
+
+      <div class="grid grid-cols-2 gap-2">
+        <input [(ngModel)]="form.nombre" placeholder="Nombre" class="col-span-2 border p-2 rounded">
+        <input [(ngModel)]="form.codigoBase" placeholder="Código" class="border p-2 rounded">
+
+        <select [(ngModel)]="form.tipoElectrodomestico" class="border p-2 rounded">
+          <option [ngValue]="''">Tipo Electrodoméstico...</option>
+          @for (e of listaElectro(); track e.id) {
+            <option [value]="e.tipo">{{e.tipo}}</option>
+          }
+        </select>
+
+        <input [(ngModel)]="form.stock" type="number" placeholder="Stock" class="border p-2 rounded">
+        <input [(ngModel)]="form.stockMinimo" type="number" placeholder="Stock Mínimo" class="border p-2 rounded">
+        <textarea [(ngModel)]="form.descripcion" placeholder="Descripción" class="col-span-2 border p-2 rounded"></textarea>
       </div>
+
+      <select [(ngModel)]="form.categoriaId" class="w-full border p-2 rounded">
+        <option [ngValue]="undefined">Seleccionar Categoría...</option>
+        @for (c of listaCat(); track c.id) { <option [value]="c.id">{{c.nombre}}</option> }
+      </select>
+
+      <select [(ngModel)]="form.unidadMedidadId" class="w-full border p-2 rounded">
+        <option [ngValue]="undefined">Seleccionar Unidad...</option>
+        @for (u of listaUni(); track u.id) { <option [value]="u.id">{{u.nombre}}</option> }
+      </select>
+
+      <button (click)="guardarInsumo()" class="w-full bg-[#1a365d] text-white p-3 rounded-lg font-bold">
+        {{ form.id ? 'ACTUALIZAR PRODUCTO' : 'GUARDAR PRODUCTO' }}
+      </button>
     </div>
   </div>
-</div>
+}

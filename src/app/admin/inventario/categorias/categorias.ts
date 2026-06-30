@@ -1,58 +1,86 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CategoriaService } from '../../../core/services/categoria.service';
 import { Categoria } from '../../../core/interfaces/categoria.interface';
+import { CategoriaService } from '../../../core/services/categorias';
 
 @Component({
   selector: 'app-categorias',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './categorias.component.html'
+  templateUrl: './categorias.html'
 })
 export class CategoriasComponent implements OnInit {
-  categorias: Categoria[] = [];
-  modalAbierto = false;
-  modoEdicion = false;
-  form: Partial<Categoria> = {};
-  idEditando?: number;
+  private readonly categoriaSvc = inject(CategoriaService);
 
-  constructor(private categoriaSvc: CategoriaService) {}
+  @Output() cambio = new EventEmitter<void>();
 
-  ngOnInit(): void { this.cargar(); }
+  protected readonly listaCategorias = signal<Categoria[]>([]);
+  protected readonly mostrarModal = signal<boolean>(false);
+  protected readonly modoEdicion = signal<boolean>(false);
+  protected readonly mensajeError = signal<string | null>(null);
 
-  cargar(): void {
-    this.categoriaSvc.getAll().subscribe(data => this.categorias = data);
+  protected form: Partial<Categoria> = { nombre: '', descripcion: '' };
+  private idEditando: number | null = null;
+
+  ngOnInit(): void { this.listar(); }
+
+  listar(): void {
+    this.categoriaSvc.funListar().subscribe({
+      next: (data) => this.listaCategorias.set(data),
+      error: (err) => console.error('Error al listar:', err)
+    });
   }
 
-  abrirModal(): void {
-    this.form = {};
-    this.modoEdicion = false;
-    this.modalAbierto = true;
+  abrirModalCrear(): void {
+    this.modoEdicion.set(false);
+    this.idEditando = null;
+    this.form = { nombre: '', descripcion: '' };
+    this.mostrarModal.set(true);
+    this.mensajeError.set(null);
   }
 
   editar(cat: Categoria): void {
-    this.form = { ...cat };
-    this.idEditando = cat.id;
-    this.modoEdicion = true;
-    this.modalAbierto = true;
+    this.modoEdicion.set(true);
+    this.idEditando = cat.id || null;
+    this.form = { nombre: cat.nombre, descripcion: cat.descripcion };
+    this.mostrarModal.set(true);
+    this.mensajeError.set(null);
   }
 
   cerrarModal(): void {
-    this.modalAbierto = false;
-    this.form = {};
+    this.mostrarModal.set(false);
+    this.mensajeError.set(null);
   }
 
   guardar(): void {
-    if (!this.form.nombre?.trim()) return;
-    const accion = this.modoEdicion
-      ? this.categoriaSvc.update(this.idEditando!, this.form as Categoria)
-      : this.categoriaSvc.create(this.form as Categoria);
-    accion.subscribe(() => { this.cargar(); this.cerrarModal(); });
+    this.mensajeError.set(null);
+    if (!this.form.nombre?.trim()) {
+      this.mensajeError.set('El nombre es obligatorio.');
+      return;
+    }
+
+    const peticion = this.modoEdicion() && this.idEditando !== null
+      ? this.categoriaSvc.funEditar(this.form, this.idEditando)
+      : this.categoriaSvc.funGuardar(this.form);
+
+    peticion.subscribe({
+      next: () => this.finalizarGuardado(),
+      error: (err) => this.mensajeError.set('Error al guardar: ' + err.message)
+    });
+  }
+
+  private finalizarGuardado(): void {
+    this.mostrarModal.set(false);
+    this.listar();
+    this.cambio.emit();
   }
 
   eliminar(id: number): void {
-    if (!confirm('¿Eliminar esta categoría?')) return;
-    this.categoriaSvc.delete(id).subscribe(() => this.cargar());
+    if (!confirm('¿Está seguro de eliminar esta categoría?')) return;
+    this.categoriaSvc.funEliminar(id).subscribe({
+      next: () => { this.listar(); this.cambio.emit(); },
+      error: (err) => console.error('Error al eliminar:', err)
+    });
   }
 }

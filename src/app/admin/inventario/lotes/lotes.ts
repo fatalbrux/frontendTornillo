@@ -1,73 +1,55 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LoteService } from '../../../core/services/lote.service';
-import { InsumoService } from '../../../core/services/insumo.service';
 import { Lote } from '../../../core/interfaces/lote.interface';
 import { Insumo } from '../../../core/interfaces/insumo.interface';
+import { LoteService } from '../../../core/services/lotes';
+import { InsumoService } from '../../../core/services/insumos';
 
 @Component({
   selector: 'app-lotes',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './lotes.component.html'
+  templateUrl: './lotes.html'
 })
 export class LotesComponent implements OnInit {
-  lotes: Lote[] = [];
-  insumos: Insumo[] = [];
-  modalAbierto = false;
-  modoEdicion = false;
-  form: Partial<Lote> = {};
-  idEditando?: number;
+  private readonly loteSvc = inject(LoteService);
+  private readonly insumoSvc = inject(InsumoService);
 
-  constructor(
-    private loteSvc: LoteService,
-    private insumoSvc: InsumoService
-  ) {}
+  protected readonly listaLotes = signal<Lote[]>([]);
+  protected readonly listaInsumos = signal<Insumo[]>([]);
+  protected readonly mostrarModal = signal<boolean>(false);
+  protected readonly modoEdicion = signal<boolean>(false);
+  protected form: Partial<Lote> = {};
+  private idEditando: number | null = null;
 
   ngOnInit(): void {
-    this.insumoSvc.getAll().subscribe(data => {
-      this.insumos = data;
-      this.cargar();
+    this.loteSvc.funListar().subscribe(data => this.listaLotes.set(data));
+    this.insumoSvc.funListar().subscribe(data => this.listaInsumos.set(data));
+  }
+
+  // Helper para mostrar nombre del insumo en la tabla
+  getNombreInsumo(id: number): string {
+    return this.listaInsumos().find(i => i.id === id)?.nombre ?? 'Desconocido';
+  }
+
+  guardar(): void {
+    this.loteSvc.funGuardar(this.form).subscribe(() => {
+      this.loteSvc.funListar().subscribe(data => this.listaLotes.set(data));
+      this.mostrarModal.set(false);
     });
   }
 
-  cargar(): void {
-    this.loteSvc.getAll().subscribe(data => this.lotes = data);
-  }
-
-  getNombreInsumo(id: number): string {
-    return this.insumos.find(i => i.id === id)?.nombre ?? '—';
-  }
-
-  abrirModal(): void {
+    // Copia esto en cada uno de tus componentes .ts si les falta
+  abrirModalCrear(): void {
     this.form = {};
-    this.modoEdicion = false;
-    this.modalAbierto = true;
+    this.modoEdicion.set(false);
+    this.mostrarModal.set(true);
   }
 
   editar(lote: Lote): void {
     this.form = { ...lote };
-    this.idEditando = lote.id;
-    this.modoEdicion = true;
-    this.modalAbierto = true;
-  }
-
-  cerrarModal(): void {
-    this.modalAbierto = false;
-    this.form = {};
-  }
-
-  guardar(): void {
-    if (!this.form.codigoLote?.trim()) return;
-    const accion = this.modoEdicion
-      ? this.loteSvc.update(this.idEditando!, this.form as Lote)
-      : this.loteSvc.create(this.form as Lote);
-    accion.subscribe(() => { this.cargar(); this.cerrarModal(); });
-  }
-
-  eliminar(id: number): void {
-    if (!confirm('¿Eliminar este lote?')) return;
-    this.loteSvc.delete(id).subscribe(() => this.cargar());
+    this.modoEdicion.set(true);
+    this.mostrarModal.set(true);
   }
 }
