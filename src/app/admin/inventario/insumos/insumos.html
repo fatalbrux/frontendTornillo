@@ -48,9 +48,16 @@
           }
         </select>
 
-        <input [(ngModel)]="form.stock" type="number" placeholder="Stock" class="border p-2 rounded">
-        <input [(ngModel)]="form.stockMinimo" type="number" placeholder="Stock Mínimo" class="border p-2 rounded">
-        <textarea [(ngModel)]="form.descripcion" placeholder="Descripción" class="col-span-2 border p-2 rounded"></textarea>
+        <div class="flex flex-col">
+          <label class="text-xs font-bold text-slate-500 mb-1">Stock Actual</label>
+          <input [(ngModel)]="form.stock" type="number" class="border p-2 rounded">
+        </div>
+        
+        <div class="flex flex-col">
+          <label class="text-xs font-bold text-slate-500 mb-1">Stock Mínimo</label>
+          <input [(ngModel)]="form.stockMinimo" type="number" class="border p-2 rounded">
+        </div>
+       <textarea [(ngModel)]="form.descripcion" placeholder="Descripción" class="col-span-2 border p-2 rounded"></textarea>
       </div>
 
       <select [(ngModel)]="form.categoriaId" class="w-full border p-2 rounded">
