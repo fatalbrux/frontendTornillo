@@ -25,6 +25,7 @@ export class Servicios implements OnInit {
   
   protected listaClientes=signal<any[]>([]);
   protected listaTecnicos=signal<any[]>([]);
+  protected listaElectrodomesticos=signal<any[]>([]);
   
   protected idServicioAEliminar:number|null=null;
   protected formulario={
@@ -49,31 +50,41 @@ export class Servicios implements OnInit {
   protected readonly serviciosPendientes=computed(()=>this.datosBack().filter(s=>s.estado==='Programado').length);
   protected readonly serviciosCompletados=computed(()=>this.datosBack().filter(s=>s.estado==='Completado').length);
   protected readonly ingresosDelDia=computed(()=>this.datosBack().reduce((acc,s:any)=>acc+(Number(s.adelanto)||0),0));
-    protected readonly clienteEncontrado = computed(() =>
-  this.listaClientes().find(u => u.ci === this.formulario.ciBusqueda) ?? null
-);
 
-protected readonly electrodomesticoEncontrado = computed(() => {
-  const cliente = this.clienteEncontrado();
-  if (!cliente) return null;
-  return this.datosBack().find(s => s.clienteId === cliente.id)?.electrodomestico ?? null;
-});
   ngOnInit():void{
     this.listar();
     this.cargarUsuarios();
+    this.cargarElectrodomesticos();
+  }
+
+  cargarElectrodomesticos():void{
+    this.http.get<any[]>('http://localhost:3000/electrodomesticos').subscribe({
+      next:(res)=>this.listaElectrodomesticos.set(res),
+      error:(err)=>console.error(err)
+    });
+  }
+
+  protected obtenerClienteEncontrado(): any {
+    return this.listaClientes().find(u => u.ci === this.formulario.ciBusqueda) ?? null;
+  }
+
+  protected obtenerElectrodomesticoEncontrado(): any {
+    const cliente = this.obtenerClienteEncontrado();
+    if (!cliente) return null;
+    return this.listaElectrodomesticos().find(e => e.clientId === cliente.id) ?? null;
   }
 
   onCiChange(): void {
-  const cliente = this.listaClientes().find(u => u.ci === this.formulario.ciBusqueda);
-  if (cliente) {
-    this.formulario.clienteId = cliente.id;
-    const servicio = this.datosBack().find(s => s.clienteId === cliente.id);
-    this.formulario.electrodomesticoId = servicio?.electrodomestico?.id ?? 0;
-  } else {
-    this.formulario.clienteId = 0;
-    this.formulario.electrodomesticoId = 0;
+    const cliente = this.listaClientes().find(u => u.ci === this.formulario.ciBusqueda);
+    if (cliente) {
+      this.formulario.clienteId = cliente.id;
+      const electro = this.listaElectrodomesticos().find(e => e.clientId === cliente.id);
+      this.formulario.electrodomesticoId = electro?.id ?? 0;
+    } else {
+      this.formulario.clienteId = 0;
+      this.formulario.electrodomesticoId = 0;
+    }
   }
-}
 
   listar():void{
     this.serviciosService.funListar().subscribe({
@@ -132,6 +143,7 @@ protected readonly electrodomesticoEncontrado = computed(() => {
     this.formulario.tecnicoId=serv.tecnicoId;
     this.formulario.costoAproximado=serv.costoAproximado;
     this.formulario.adelanto=serv.adelanto;
+    this.formulario.electrodomesticoId=serv.electrodomesticoId;
     this.formulario.tipoElectro=serv.electrodomestico?.tipo??'';
     this.formulario.marcaElectro=serv.electrodomestico?.marca??'';
     this.formulario.descProblema=serv.electrodomestico?.observaciones??'';
@@ -142,28 +154,27 @@ protected readonly electrodomesticoEncontrado = computed(() => {
     this.mostrarModal.set(false);
   }
 
+  guardar(): void {
+    const { electrodomesticoId, ciBusqueda, ...resto } = this.formulario;
 
-guardar(): void {
-  const { electrodomesticoId, ciBusqueda, ...resto } = this.formulario;
+    const payload: any = {
+      ...resto,
+      ...(electrodomesticoId ? { electrodomesticoId } : {})
+    };
 
-  const payload: any = {
-    ...resto,
-    ...(electrodomesticoId ? { electrodomesticoId } : {})
-  };
-
-  if (this.modoEdicion() && this.idSeleccionado() !== null) {
-    this.serviciosService.funEditar(payload, this.idSeleccionado()!).subscribe({
-      next: () => this.reiniciarYRefrescar(),
-      error: (err) => console.error(err)
-    });
-  } else {
-    const nuevo = { ...payload, fechaProgramada: new Date().toISOString() };
-    this.serviciosService.funGuardar(nuevo).subscribe({
-      next: () => this.reiniciarYRefrescar(),
-      error: (err) => console.error(err)
-    });
+    if (this.modoEdicion() && this.idSeleccionado() !== null) {
+      this.serviciosService.funEditar(payload, this.idSeleccionado()!).subscribe({
+        next: () => this.reiniciarYRefrescar(),
+        error: (err) => console.error(err)
+      });
+    } else {
+      const nuevo = { ...payload, fechaProgramada: new Date().toISOString() };
+      this.serviciosService.funGuardar(nuevo).subscribe({
+        next: () => this.reiniciarYRefrescar(),
+        error: (err) => console.error(err)
+      });
+    }
   }
-}
 
   eliminar(id:number):void{
     this.idServicioAEliminar=id;
