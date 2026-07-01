@@ -1,0 +1,51 @@
+<div class="p-6 space-y-4">
+  <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+    <h2 class="font-bold text-lg">Proveedores</h2>
+    <button (click)="abrirNuevoProveedor()" class="bg-[#1a365d] text-white px-4 py-2 rounded-lg font-bold">+ NUEVO PROVEEDOR</button>
+  </div>
+
+  <table class="w-full bg-white border rounded-xl overflow-hidden">
+    <tr class="text-xs text-slate-400 border-b bg-slate-50">
+      <th class="p-3 text-left">Nombre</th>
+      <th class="p-3 text-left">Teléfono</th>
+      <th class="p-3 text-left">Dirección</th>
+      <th class="p-3 text-left">Tipo</th>
+      <th class="p-3 text-right">Acciones</th>
+    </tr>
+    @for (prov of listaProveedores(); track prov.id) {
+      <tr class="border-t text-sm hover:bg-slate-50">
+        <td class="p-3 font-medium">{{ prov.nombre }}</td>
+        <td class="p-3 text-slate-500">{{ prov.telefono }}</td>
+        <td class="p-3 text-slate-500">{{ prov.direccion }}</td>
+        <td class="p-3 text-slate-500">{{ prov.tipoProveedor }}</td>
+        <td class="p-3 text-right space-x-2">
+          <button (click)="editarProveedor(prov)" class="text-orange-500 hover:text-orange-700">✏️</button>
+          <button (click)="eliminarProveedor(prov.id)" class="text-red-500 hover:text-red-700">🗑️</button>
+        </td>
+      </tr>
+    }
+    @if (listaProveedores().length === 0) {
+      <tr><td colspan="5" class="p-4 text-center text-slate-400">No hay proveedores registrados.</td></tr>
+    }
+  </table>
+</div>
+
+@if (mostrarModal()) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h2 class="font-bold">{{ form.id ? 'EDITAR PROVEEDOR' : 'NUEVO PROVEEDOR' }}</h2>
+        <button (click)="cerrarModal()" class="text-slate-400">✕</button>
+      </div>
+
+      <input [(ngModel)]="form.nombre" placeholder="Nombre" class="w-full border p-2 rounded">
+      <input [(ngModel)]="form.telefono" placeholder="Teléfono" class="w-full border p-2 rounded">
+      <input [(ngModel)]="form.direccion" placeholder="Dirección" class="w-full border p-2 rounded">
+      <input [(ngModel)]="form.tipoProveedor" placeholder="Tipo de Proveedor" class="w-full border p-2 rounded">
+
+      <button (click)="guardarProveedor()" class="w-full bg-[#1a365d] text-white p-3 rounded-lg font-bold">
+        {{ form.id ? 'ACTUALIZAR PROVEEDOR' : 'GUARDAR PROVEEDOR' }}
+      </button>
+    </div>
+  </div>
+}

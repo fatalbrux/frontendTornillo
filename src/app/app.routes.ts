@@ -13,6 +13,8 @@ import { Inicio } from './cliente/inicio/inicio';
 import { ClienteLayoutComponent } from './cliente/cliente-layout/cliente-layout';
 import { ClienteSesion } from './cliente/cliente-sesion/cliente-sesion';
 import { InventarioComponent } from './admin/inventario/inventario';
+import { ComprasComponent } from './admin/compras/compras';
+import { FinanzasComponent } from './admin/finanzas/finanzas';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -31,6 +33,8 @@ export const routes: Routes = [
       { path: 'personal', component: Personal },
       // 👇 Nueva ruta de inventario dentro del admin
       { path: 'inventario', component: InventarioComponent },
+      { path: 'compras', component: ComprasComponent },
+      { path: 'finanzas', component: FinanzasComponent }
     ]
   },
 

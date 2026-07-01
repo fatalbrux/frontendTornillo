@@ -1,0 +1,88 @@
+<div class="p-6 space-y-4">
+  <div class="flex justify-between items-center bg-white p-4 rounded-xl border">
+    <h2 class="font-bold text-lg">Pagos</h2>
+    <button (click)="abrirNuevoPago()" class="bg-[#1a365d] text-white px-4 py-2 rounded-lg font-bold">+ NUEVO PAGO</button>
+  </div>
+
+  <table class="w-full bg-white border rounded-xl overflow-hidden">
+    <tr class="text-xs text-slate-400 border-b bg-slate-50">
+      <th class="p-3 text-left">Servicio</th>
+      <th class="p-3 text-left">Monto Total</th>
+      <th class="p-3 text-left">Adelanto</th>
+      <th class="p-3 text-left">Saldo</th>
+      <th class="p-3 text-left">Método</th>
+      <th class="p-3 text-left">Estado</th>
+      <th class="p-3 text-right">Acciones</th>
+    </tr>
+    @for (pago of listaPagos(); track pago.id) {
+      <tr class="border-t text-sm hover:bg-slate-50">
+        <td class="p-3 font-medium">{{ obtenerInfoServicio(pago.servicioId) }}</td>
+        <td class="p-3 text-slate-500">{{ pago.montoTotal | number:'1.2-2' }}</td>
+        <td class="p-3 text-slate-500">{{ (pago.montoAdelanto ?? 0) | number:'1.2-2' }}</td>
+        <td class="p-3 font-bold">{{ pago.saldoPendiente | number:'1.2-2' }}</td>
+        <td class="p-3 text-slate-500">{{ pago.metodoPago }}</td>
+        <td class="p-3">
+          <span
+            class="px-2 py-1 rounded-full text-xs font-bold"
+            [class.bg-green-100]="pago.completado"
+            [class.text-green-600]="pago.completado"
+            [class.bg-red-100]="!pago.completado"
+            [class.text-red-600]="!pago.completado">
+            {{ pago.completado ? 'Completado' : 'Pendiente' }}
+          </span>
+        </td>
+        <td class="p-3 text-right space-x-2">
+          <button (click)="editarPago(pago)" class="text-orange-500 hover:text-orange-700">✏️</button>
+          <button (click)="eliminarPago(pago.id)" class="text-red-500 hover:text-red-700">🗑️</button>
+        </td>
+      </tr>
+    }
+    @if (listaPagos().length === 0) {
+      <tr><td colspan="7" class="p-4 text-center text-slate-400">No hay pagos registrados.</td></tr>
+    }
+  </table>
+</div>
+
+@if (mostrarModal()) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h2 class="font-bold">{{ form.id ? 'EDITAR PAGO' : 'NUEVO PAGO' }}</h2>
+        <button (click)="cerrarModal()" class="text-slate-400">✕</button>
+      </div>
+
+      <select [(ngModel)]="form.servicioId" class="w-full border p-2 rounded">
+        <option [ngValue]="undefined">Seleccionar Servicio...</option>
+        @for (s of listaServicios(); track s.id) { <option [ngValue]="s.id">#{{s.id}} - {{s.estado}}</option> }
+      </select>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col">
+          <label class="text-xs font-bold text-slate-500 mb-1">Monto Total</label>
+          <input [(ngModel)]="form.montoTotal" (ngModelChange)="calcularSaldo()" type="number" class="border p-2 rounded">
+        </div>
+        <div class="flex flex-col">
+          <label class="text-xs font-bold text-slate-500 mb-1">Adelanto</label>
+          <input [(ngModel)]="form.montoAdelanto" (ngModelChange)="calcularSaldo()" type="number" class="border p-2 rounded">
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-xs font-bold text-slate-500 mb-1">Saldo Pendiente</label>
+        <input [ngModel]="form.saldoPendiente" type="number" disabled class="border p-2 rounded bg-slate-100 text-slate-500">
+      </div>
+
+      <select [(ngModel)]="form.metodoPago" class="w-full border p-2 rounded">
+        <option [ngValue]="''">Método de pago...</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="QR">QR</option>
+        <option value="Tarjeta">Tarjeta</option>
+      </select>
+
+      <button (click)="guardarPago()" class="w-full bg-[#1a365d] text-white p-3 rounded-lg font-bold">
+        {{ form.id ? 'ACTUALIZAR PAGO' : 'GUARDAR PAGO' }}
+      </button>
+    </div>
+  </div>
+}
